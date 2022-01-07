@@ -2,7 +2,8 @@ import { NS } from "@ns"
 import { getConstants } from "/scripts/utils.js"
 
 /**
- * Attempts to purchase the most expensive augmentations available from each faction.
+ * Attempts to purchase the most expensive augmentations available
+ * from each faction.
  *
  * @param {NS} ns
  */
@@ -16,12 +17,7 @@ export async function main(ns: NS): Promise<void> {
         const factionAugs = ns.getAugmentationsFromFaction(faction)
 
         // Build a list of augs for the faction that we don't already own.
-        let augs = [
-            {
-                augName: "",
-                augCost: 0,
-            },
-        ]
+        let augs = []
         for (let j = 0; j < factionAugs.length; j++) {
             const augName = factionAugs[j]
 

@@ -47,9 +47,17 @@ export async function forceRunScript(
     server = "home",
     ...args: Array<string | number | boolean>
 ): Promise<void> {
+    // Sanity check that the script actually exists
+    if (!ns.fileExists(script)) {
+        throw new Error(
+            `Invalid script \"${script}\" in forceRunScript in utils.js`
+        )
+    }
+
     if (!ns.isRunning(script, "home")) {
         let scriptStarted = runScript(ns, script, server, ...args)
         while (!scriptStarted) {
+            ns.print(`Waiting to start ${script}`)
             await ns.sleep(1000)
             scriptStarted = runScript(ns, script, server, ...args)
         }
@@ -153,6 +161,7 @@ export async function hackServer(
 
     // Utils needed for all servers
     await ns.scp("/scripts/utils.js", "home", hostname)
+    await ns.scp("/classes/constants.js", "home", hostname)
 
     // We want to dedicate the first three scripts to a specific task, so we
     // need to make sure there's enough memory for at least those.

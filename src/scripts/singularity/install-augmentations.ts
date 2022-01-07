@@ -1,5 +1,5 @@
 import { NS } from "@ns"
-import { getConstants } from "/scripts/utils.js"
+import { getConstants, forceRunScript } from "/scripts/utils.js"
 
 /**
  * Runs checks to validate whether we should install augmentations now and restart.
@@ -19,7 +19,9 @@ export async function main(ns: NS): Promise<void> {
         if (currentFavor < 150) {
             const favorGain = ns.getFactionFavorGain(faction)
 
-            if (currentFavor + favorGain >= 150) installAugmentations(ns)
+            if (currentFavor + favorGain >= 150) {
+                installAugmentations(ns)
+            }
         }
     }
 
@@ -30,5 +32,8 @@ export async function main(ns: NS): Promise<void> {
  * @param {NS} ns
  */
 export function installAugmentations(ns: NS): void {
+    // Before installing augmentations, try to make any last-minute purchases
+    forceRunScript(ns, "/scripts/purchase-any-augmentations.js")
+
     ns.installAugmentations("first-run.js")
 }
