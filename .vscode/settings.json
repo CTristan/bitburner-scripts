@@ -1,10 +1,10 @@
 {
     // Linter Settings
-    "typescript.validate.enable": false,
-    "javascript.validate.enable": false,
+    "typescript.validate.enable": true,
+    "javascript.validate.enable": true,
     "eslint.validate": ["typescript", "typescriptreact"],
     "eslint.workingDirectories": ["./src"],
-    "editor.codeActionsOnSave": {"source.fixAll.eslint": true},
+    "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
 
     // Use Non-relative imports so the game can find files in its fake directory structure
     "javascript.preferences.importModuleSpecifier": "non-relative",
@@ -14,13 +14,19 @@
     "bitburner.scriptRoot": "./dist/",
 
     // Autosave Settings
-    "files.autoSave": "off",
+    "files.autoSave": "afterDelay",
 
     // Autosnippet settings
     "autoSnippet.snippets": [
         {
-            "pattern": "**/*.ts", 
+            "pattern": "**/*.ts",
             "snippet": "ns-template"
-        },
+        }
     ],
+    "bitburner.showFileWatcherEnabledNotification": true,
+    "bitburner.showPushSuccessNotification": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }
