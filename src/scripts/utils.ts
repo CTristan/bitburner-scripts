@@ -335,16 +335,3 @@ export function scanForAllServers(
     ns.print(servers.length + " servers found.")
     return servers
 }
-
-/**
- * Checks if we're still performing the work that we want to stop.
- * @param {NS} ns
- * @param {string} workType
- */
-export function stopWork(ns: NS, workType: string): void {
-    const player = ns.getPlayer()
-
-    if (player.workType === workType) {
-        ns.stopAction()
-    }
-}

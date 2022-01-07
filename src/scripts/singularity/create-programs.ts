@@ -25,7 +25,6 @@ export async function main(ns: NS): Promise<void> {
                 await ns.sleep(1000)
                 workType = ns.getPlayer().workType
             }
-            ns.stopAction()
         }
     }
 }

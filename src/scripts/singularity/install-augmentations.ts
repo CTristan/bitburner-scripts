@@ -20,20 +20,20 @@ export async function main(ns: NS): Promise<void> {
             const favorGain = ns.getFactionFavorGain(faction)
 
             if (currentFavor + favorGain >= 150) {
-                installAugmentations(ns)
+                await installAugmentations(ns)
             }
         }
     }
 
-    if (doInstall) installAugmentations(ns)
+    if (doInstall) await installAugmentations(ns)
 }
 
 /**
  * @param {NS} ns
  */
-export function installAugmentations(ns: NS): void {
+export async function installAugmentations(ns: NS): Promise<void> {
     // Before installing augmentations, try to make any last-minute purchases
-    forceRunScript(ns, "/scripts/purchase-any-augmentations.js")
+    await forceRunScript(ns, "/scripts/purchase-any-augmentations.js")
 
     ns.installAugmentations("first-run.js")
 }

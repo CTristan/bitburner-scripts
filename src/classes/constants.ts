@@ -11,6 +11,22 @@ export class Constants {
         { name: "MegaCorp", repReq: 200e3 },
     ]
 
+    Crimes = [
+        // Sorted by most profitable
+        { name: "heist", time: 600 },
+        { name: "assassination", time: 300 },
+        { name: "kidnap", time: 120 },
+        { name: "grand theft auto", time: 80 },
+        { name: "homicide", time: 3 },
+        { name: "traffick arms", time: 40 },
+        { name: "bond forgery", time: 300 },
+        { name: "deal drugs", time: 10 },
+        { name: "mug", time: 4 },
+        { name: "larceny", time: 90 },
+        { name: "shoplift", time: 2 },
+        { name: "rob store", time: 60 },
+    ]
+
     Factions = [
         // Main Quest
         "CyberSec", // 18,750

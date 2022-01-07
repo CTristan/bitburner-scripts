@@ -15,7 +15,7 @@ export async function main(ns: NS): Promise<void> {
     // Check if we're indicating a first run
     if (ns.args[0] == true) {
         runScript(ns, "/scripts/automate-purchases.js", "home", true)
-        ns.spawn("hack-the-planet.js")
+        ns.spawn("/scripts/hack-the-planet.js")
     }
     disableLogs(ns)
 
@@ -24,7 +24,8 @@ export async function main(ns: NS): Promise<void> {
     if (hostName == "home") {
         runScript(ns, "/scripts/worm.js")
         runScript(ns, "/scripts/automate-purchases.js")
-        runScript(ns, "/scripts/singularity.js", "home", true)
+        runScript(ns, "/scripts/start-singularity.js", "home", true)
+        runScript(ns, "watcher.js")
     }
 
     // Make sure we're using the most threads available

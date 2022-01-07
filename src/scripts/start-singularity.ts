@@ -1,11 +1,13 @@
 import { NS } from "@ns"
-import { forceRunScript } from "/scripts/utils.js"
+import { forceRunScript, getConstants } from "/scripts/utils.js"
 
 /** @param {NS} ns **/
 export async function main(ns: NS): Promise<void> {
     // First parameter is whether or not we want to buy programs instead
     // of creating them.
     const buyPrograms = ns.args[0]
+
+    const WorkTypes = getConstants().WorkTypes
 
     while (true) {
         // Make sure we're always using the most RAM available
@@ -26,13 +28,10 @@ export async function main(ns: NS): Promise<void> {
             "/scripts/singularity/purchase-augmentations.js"
         )
 
-        // Perform actions. Always prioritize factions over
-        // crimes and companies.
-        await forceRunScript(ns, "/scripts/singularity/create-programs.js")
-        await forceRunScript(ns, "/scripts/singularity/work-factions.js")
-        await forceRunScript(ns, "/scripts/singularity/commit-crime.js")
-        await forceRunScript(ns, "/scripts/singularity/work-companies.js")
-        await forceRunScript(ns, "/scripts/singularity/raise-lowest-stat.js")
+        // Perform work. Always prioritize factions over crimes and companies.
+        await forceRunScript(ns, "/scripts/singularity/perform-work.js")
+
+        // If we're ready for it, let's install our augmentations
         await forceRunScript(
             ns,
             "/scripts/singularity/install-augmentations.js"

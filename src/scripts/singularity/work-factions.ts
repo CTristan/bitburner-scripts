@@ -1,5 +1,5 @@
 import { NS } from "@ns"
-import { getConstants, stopWork } from "/scripts/utils.js"
+import { getConstants } from "/scripts/utils.js"
 
 /**
  * Works for a faction that we don't yet have enough rep with for all of their augmentations.
@@ -15,52 +15,47 @@ export async function main(ns: NS): Promise<void> {
     const ownedAugs = ns.getOwnedAugmentations(true)
     const alwaysAvailableAug = "NeuroFlux Governor"
 
-    if (!ns.isBusy() || player.workType === WorkTypes.Factions) {
-        for (let i = 0; i < factions.length; i++) {
-            const faction = factions[i]
+    for (let i = 0; i < factions.length; i++) {
+        const faction = factions[i]
 
-            // If we don't have any faction rep, that means we aren't a member yet
-            if (ns.getFactionRep(faction) > 0) {
-                // Only consider augmentations we don't own already
-                const augs = ns
-                    .getAugmentationsFromFaction(faction)
-                    .filter(
-                        (aug) =>
-                            ownedAugs.indexOf(aug) == -1 ||
-                            aug.startsWith(alwaysAvailableAug)
-                    )
-                let highestRepReq = 0
+        // If we don't have any faction rep, that means we aren't a member yet
+        if (ns.getFactionRep(faction) > 0) {
+            // Only consider augmentations we don't own already
+            const augs = ns
+                .getAugmentationsFromFaction(faction)
+                .filter(
+                    (aug) =>
+                        ownedAugs.indexOf(aug) == -1 ||
+                        aug.startsWith(alwaysAvailableAug)
+                )
+            let highestRepReq = 0
 
-                for (let j = 0; j < augs.length; j++) {
-                    const repReq = ns.getAugmentationRepReq(augs[j])
-                    highestRepReq = Math.max(highestRepReq, repReq)
-                }
+            for (let j = 0; j < augs.length; j++) {
+                const repReq = ns.getAugmentationRepReq(augs[j])
+                highestRepReq = Math.max(highestRepReq, repReq)
+            }
 
-                let rep = ns.getFactionRep(faction)
+            let rep = ns.getFactionRep(faction)
 
-                // First try donating money to increase rep the fastest
-                if (rep < highestRepReq) {
-                    rep = donateToFaction(ns, faction, highestRepReq)
-                }
+            // First try donating money to increase rep the fastest
+            if (rep < highestRepReq) {
+                rep = donateToFaction(ns, faction, highestRepReq)
+            }
 
-                if (rep < highestRepReq) {
+            if (rep < highestRepReq) {
+                workForFaction(ns, faction)
+
+                // Need work for at least a minute before checking rep again. Rep is only updated after
+                // the work is stopped, so we need to restart it for the next go-around.
+                await ns.sleep(60000)
+                player = ns.getPlayer()
+                if (player.workType === WorkTypes.Factions) {
                     workForFaction(ns, faction)
-
-                    // Need work for at least a minute before checking rep again. Rep is only updated after
-                    // the work is stopped, so we need to restart it for the next go-around.
-                    await ns.sleep(60000)
-                    player = ns.getPlayer()
-                    if (player.workType === WorkTypes.Factions) {
-                        workForFaction(ns, faction)
-                    }
-
-                    return
                 }
+
+                return
             }
         }
-
-        // If we have no more factions that need rep, let's stop working so other actions can happen.
-        stopWork(ns, WorkTypes.Factions)
     }
 }
 

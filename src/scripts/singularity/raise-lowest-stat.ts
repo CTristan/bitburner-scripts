@@ -1,5 +1,4 @@
 import { NS } from "@ns"
-import { getConstants, stopWork } from "/scripts/utils.js"
 
 /**
  * Checks which stat is the lowest and takes the corresponding university or gym class.
@@ -17,8 +16,6 @@ export async function main(ns: NS): Promise<void> {
             "Rothman University", // Sector-12
             "ZB Institute of Technology", // Volhaven
         ]
-        const constants = getConstants()
-        const WorkTypes = constants.WorkTypes
         const player = ns.getPlayer()
         let stats = [
             { name: "Algorithms", level: player.hacking },
@@ -39,7 +36,6 @@ export async function main(ns: NS): Promise<void> {
 
                     if (ns.universityCourse(university, stat.name)) {
                         await ns.sleep(60000)
-                        stopWork(ns, WorkTypes.StudyClass)
                         return
                     }
                 }
@@ -49,7 +45,6 @@ export async function main(ns: NS): Promise<void> {
 
                     if (ns.gymWorkout(gym, stat.name)) {
                         await ns.sleep(60000)
-                        stopWork(ns, WorkTypes.StudyClass)
                         return
                     }
                 }
