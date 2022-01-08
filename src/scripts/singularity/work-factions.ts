@@ -42,6 +42,12 @@ export async function main(ns: NS): Promise<void> {
                 ) {
                     await workForFaction(ns, faction, highestRepReq)
                 }
+
+                // We're done working for this faction now
+                if (isWorking(ns, workType)) {
+                    ns.stopAction()
+                }
+                return
             }
         }
     }

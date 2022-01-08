@@ -8,6 +8,8 @@ import { getConstants } from "/scripts/utils.js"
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
+    ns.disableLog("getServerMoneyAvailable")
+
     const alwaysAvailableAug = "NeuroFlux Governor"
     const constants = getConstants()
     const factions = constants.Factions
@@ -54,7 +56,18 @@ export async function main(ns: NS): Promise<void> {
             if (ns.purchaseAugmentation(faction, augName)) {
                 ownedAugs = ns.getOwnedAugmentations(true)
             } else {
-                break
+                // Special case where the most expensive augmentation requires a
+                // lower tier version
+                const rep = ns.getFactionRep(faction)
+                const repReq = ns.getAugmentationRepReq(augName)
+                const augPrice = ns.getAugmentationPrice(augName)
+                const availableMoney = ns.getServerMoneyAvailable("home")
+
+                if (rep >= repReq && availableMoney >= augPrice) {
+                    ns.print(`Need to purchase a lower version of  ${augName}`)
+                } else {
+                    break
+                }
             }
         }
     }

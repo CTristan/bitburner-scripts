@@ -1,5 +1,7 @@
 import { NS } from "@ns"
-import { getConstants } from "/scripts/utils.js"
+import { getConstants, isWorking } from "/scripts/utils.js"
+
+const workType = getConstants().WorkTypes.Crime
 
 /**
  * Commits crimes, sorted by profitability.
@@ -22,7 +24,7 @@ export async function main(ns: NS): Promise<void> {
         // those out first
         let numKills = ns.getPlayer().numPeopleKilled
         let shouldCommitLethalCrime =
-            numKills > killMinimum && lethalCrimes.indexOf(crime.name) > -1
+            numKills < killMinimum && lethalCrimes.indexOf(crime.name) > -1
 
         while (
             (crimeChance < 1 && crimeChance >= 0.5) ||
@@ -30,6 +32,10 @@ export async function main(ns: NS): Promise<void> {
         ) {
             ns.commitCrime(crime.name)
             await ns.sleep(crime.time * 1000)
+
+            // If we're not still committing crimes, let's leave so we don't
+            // accidentally interrupt something else
+            if (!isWorking(ns, workType)) return
 
             // Refresh our crime statistics
             crimeChance = ns.getCrimeChance(crime.name)

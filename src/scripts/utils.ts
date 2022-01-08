@@ -235,7 +235,7 @@ export function isServerOwned(hostname: string): boolean {
 }
 
 export function isWorking(ns: NS, workType: string): boolean {
-    return ns.getPlayer().workType === workType && ns.isBusy()
+    return ns.getPlayer().workType === workType
 }
 
 /**
