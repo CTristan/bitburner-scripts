@@ -234,6 +234,10 @@ export function isServerOwned(hostname: string): boolean {
     return hostname.substring(0, 4) == "home"
 }
 
+export function isWorking(ns: NS, workType: string): boolean {
+    return ns.getPlayer().workType === workType && ns.isBusy()
+}
+
 /**
  * If enough RAM is available then restart the script with the maximum number of threads available.
  * Does not currently support scripts with args.

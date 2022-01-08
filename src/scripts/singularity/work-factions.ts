@@ -1,19 +1,18 @@
 import { NS } from "@ns"
-import { getConstants } from "/scripts/utils.js"
+import { getConstants, isWorking } from "/scripts/utils.js"
+
+const workType = getConstants().WorkTypes.Factions
 
 /**
- * Works for a faction that we don't yet have enough rep with for all of their augmentations.
- * Only activates if we're not busy with something else.
+ * Work for a faction that we don't yet have enough rep with for all
+ * of their augmentations.
  *
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
     const constants = getConstants()
-    const WorkTypes = constants.WorkTypes
     const factions = constants.Factions
-    let player = ns.getPlayer()
     const ownedAugs = ns.getOwnedAugmentations(true)
-    const alwaysAvailableAug = "NeuroFlux Governor"
 
     for (let i = 0; i < factions.length; i++) {
         const faction = factions[i]
@@ -23,11 +22,7 @@ export async function main(ns: NS): Promise<void> {
             // Only consider augmentations we don't own already
             const augs = ns
                 .getAugmentationsFromFaction(faction)
-                .filter(
-                    (aug) =>
-                        ownedAugs.indexOf(aug) == -1 ||
-                        aug.startsWith(alwaysAvailableAug)
-                )
+                .filter((aug) => ownedAugs.indexOf(aug) == -1)
             let highestRepReq = 0
 
             for (let j = 0; j < augs.length; j++) {
@@ -35,27 +30,25 @@ export async function main(ns: NS): Promise<void> {
                 highestRepReq = Math.max(highestRepReq, repReq)
             }
 
-            let rep = ns.getFactionRep(faction)
+            // If we meet the criteria, let's work for this faction
+            if (ns.getFactionRep(faction) < highestRepReq) {
+                await workForFaction(ns, faction, highestRepReq)
 
-            // First try donating money to increase rep the fastest
-            if (rep < highestRepReq) {
-                rep = donateToFaction(ns, faction, highestRepReq)
-            }
-
-            if (rep < highestRepReq) {
-                workForFaction(ns, faction)
-
-                // Need work for at least a minute before checking rep again. Rep is only updated after
-                // the work is stopped, so we need to restart it for the next go-around.
-                await ns.sleep(60000)
-                player = ns.getPlayer()
-                if (player.workType === WorkTypes.Factions) {
-                    workForFaction(ns, faction)
+                // Keep working until we've either hit our desired rep or
+                // started other work.
+                while (
+                    ns.getFactionRep(faction) < highestRepReq &&
+                    isWorking(ns, workType)
+                ) {
+                    await workForFaction(ns, faction, highestRepReq)
                 }
-
-                return
             }
         }
+    }
+
+    // If we're still working on a faction, we can stop now
+    if (isWorking(ns, workType)) {
+        ns.stopAction()
     }
 }
 
@@ -65,13 +58,30 @@ export async function main(ns: NS): Promise<void> {
  *
  * @param {NS} ns
  */
-function workForFaction(ns: NS, faction: string): void {
-    const focus = ns.isFocused()
-    if (
-        !ns.workForFaction(faction, "Field Work", focus) &&
-        !ns.workForFaction(faction, "Security Work", focus)
-    ) {
-        ns.workForFaction(faction, "Hacking", focus)
+async function workForFaction(
+    ns: NS,
+    faction: string,
+    repReq: number
+): Promise<void> {
+    let rep = ns.getFactionRep(faction)
+
+    // First try donating money to increase rep the fastest
+    rep = donateToFaction(ns, faction, repReq)
+
+    if (rep < repReq) {
+        const focus = ns.isFocused()
+
+        if (
+            !ns.workForFaction(faction, "Field Work", focus) &&
+            !ns.workForFaction(faction, "Security Work", focus)
+        ) {
+            ns.workForFaction(faction, "Hacking", focus)
+        }
+
+        // Sleep until we gain 1000 rep or start working on something else
+        while (ns.getPlayer().workRepGained < 1000 && isWorking(ns, workType)) {
+            await ns.sleep(1000)
+        }
     }
 }
 
@@ -79,15 +89,20 @@ function workForFaction(ns: NS, faction: string): void {
  * @param {NS} ns
  */
 function donateToFaction(ns: NS, faction: string, repReq: number): number {
-    let rep = ns.getFactionRep(faction)
     const favor = ns.getFactionFavor(faction)
+    let rep = ns.getFactionRep(faction)
 
     if (favor >= 150) {
         const repDifference = repReq - rep
         const repMultiplier = favor / 100
 
-        // Formula for reputation gain: reputation = donationAmount * reputationMultiplier / 10e6
-        // Formula for donation amount: donationAmount = reputation * 10e6 / reputationMultiplier
+        /**
+         * Formula for reputation gain:
+         * reputation = donationAmount * reputationMultiplier / 10e6
+         *
+         * Formula for donation amount:
+         * donationAmount = reputation * 10e6 / reputationMultiplier
+         */
         const donationAmount = Math.ceil((repDifference * 10e6) / repMultiplier)
         ns.donateToFaction(faction, donationAmount)
 

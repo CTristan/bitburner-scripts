@@ -73,6 +73,7 @@ export async function main(ns: NS): Promise<void> {
         }
 
         whitelist.push(workType)
+        console.log(whitelist)
     }
 }
 
@@ -96,7 +97,7 @@ export async function attemptToPerformWork(
 
     await forceRunScript(ns, script, "home")
 
-    // Wait for one second to allow the script to run and start work before
+    // Wait for a second to allow the script to run and start work before
     // before continuing on.
     await ns.sleep(1000)
 }

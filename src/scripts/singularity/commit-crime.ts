@@ -16,21 +16,26 @@ export async function main(ns: NS): Promise<void> {
 
     for (let i = 0; i < crimes.length; i++) {
         const crime = crimes[i]
-        const crimeChance = ns.getCrimeChance(crime.name)
+        let crimeChance = ns.getCrimeChance(crime.name)
 
         // Lethal crimes are a special case and we want to max
         // those out first
-        const numKills = ns.getPlayer().numPeopleKilled
-        const shouldCommitLethalCrime =
+        let numKills = ns.getPlayer().numPeopleKilled
+        let shouldCommitLethalCrime =
             numKills > killMinimum && lethalCrimes.indexOf(crime.name) > -1
 
-        if (
-            crimeChance < 1 &&
-            (crimeChance >= 0.5 || shouldCommitLethalCrime)
+        while (
+            (crimeChance < 1 && crimeChance >= 0.5) ||
+            shouldCommitLethalCrime
         ) {
             ns.commitCrime(crime.name)
             await ns.sleep(crime.time * 1000)
-            return
+
+            // Refresh our crime statistics
+            crimeChance = ns.getCrimeChance(crime.name)
+            numKills = ns.getPlayer().numPeopleKilled
+            shouldCommitLethalCrime =
+                numKills > killMinimum && lethalCrimes.indexOf(crime.name) > -1
         }
     }
 }
