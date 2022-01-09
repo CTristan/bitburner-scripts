@@ -15,13 +15,13 @@ const Cities = Constants.Cities;
  */
 export async function main(ns: NS): Promise<void> {
     // Find the city with the least favor
-    const city = { name: "", favor: 0 };
+    const city = { name: "", favor: Number.MAX_VALUE };
     for (const key in Cities) {
         const cityName = Cities[key];
         const favor = ns.getFactionFavor(cityName);
-        if (favor > city.favor) {
+        if (favor < city.favor) {
             city.name = cityName;
-            city.favor = ns.getFactionFavor(cityName);
+            city.favor = favor;
         }
     }
 
