@@ -1,7 +1,10 @@
 import { NS } from "@ns"
-import { getConstants, isWorking } from "/scripts/utils.js"
+import * as Constants from "/classes/constants.js"
+import { isWorking } from "/scripts/utils.js"
 
-const workType = getConstants().WorkTypes.Company
+const Companies = Constants.Companies
+
+const workType = Constants.WorkTypes.Company
 
 /**
  * Works for the most profitable company we qualify for.
@@ -9,11 +12,9 @@ const workType = getConstants().WorkTypes.Company
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    const constants = getConstants()
-    const companies = constants.Companies
+    for (const key in Companies) {
+        const company = Companies[key]
 
-    for (let i = 0; i < companies.length; i++) {
-        const company = companies[i]
         ns.applyToCompany(company.name, "Software")
 
         if (

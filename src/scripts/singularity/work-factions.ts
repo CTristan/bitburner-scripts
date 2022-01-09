@@ -1,7 +1,9 @@
 import { NS } from "@ns"
-import { getConstants, isWorking } from "/scripts/utils.js"
+import * as Constants from "/classes/constants.js"
+import { isWorking } from "/scripts/utils.js"
 
-const workType = getConstants().WorkTypes.Factions
+const Factions = Constants.Factions
+const workType = Constants.WorkTypes.Factions
 
 /**
  * Work for a faction that we don't yet have enough rep with for all
@@ -10,12 +12,10 @@ const workType = getConstants().WorkTypes.Factions
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    const constants = getConstants()
-    const factions = constants.Factions
     const ownedAugs = ns.getOwnedAugmentations(true)
 
-    for (let i = 0; i < factions.length; i++) {
-        const faction = factions[i]
+    for (const key in Factions) {
+        const faction = Factions[key]
 
         // If we don't have any faction rep, that means we aren't a member yet
         if (ns.getFactionRep(faction) > 0) {
@@ -78,10 +78,10 @@ async function workForFaction(
         const focus = ns.isFocused()
 
         if (
-            !ns.workForFaction(faction, "Field Work", focus) &&
-            !ns.workForFaction(faction, "Security Work", focus)
+            !ns.workForFaction(faction, "Hacking", focus) &&
+            !ns.workForFaction(faction, "Field Work", focus)
         ) {
-            ns.workForFaction(faction, "Hacking", focus)
+            ns.workForFaction(faction, "Security Work", focus)
         }
 
         // Sleep until we gain 1000 rep or start working on something else

@@ -1,5 +1,7 @@
 import { NS } from "@ns"
-import { getConstants } from "/scripts/utils.js"
+import * as Constants from "/classes/constants.js"
+
+const Factions = Constants.Factions
 
 /**
  * Purchase any augmentations we can afford.
@@ -9,11 +11,9 @@ import { getConstants } from "/scripts/utils.js"
  */
 export async function main(ns: NS): Promise<void> {
     const alwaysAvailableAug = "NeuroFlux Governor"
-    const constants = getConstants()
-    const factions = constants.Factions
     let ownedAugs = ns.getOwnedAugmentations(true)
-    for (let i = 0; i < factions.length; i++) {
-        const faction = factions[i]
+    for (const key in Factions) {
+        const faction = Factions[key]
         const factionAugs = ns.getAugmentationsFromFaction(faction)
 
         // Build a list of augs for the faction that we don't already own.

@@ -1,5 +1,4 @@
 import { NS } from "@ns"
-import { Constants } from "/classes/constants.js"
 
 /** @param {NS} ns */
 // export async function main(ns) { }
@@ -62,13 +61,6 @@ export async function forceRunScript(
             scriptStarted = runScript(ns, script, server, ...args)
         }
     }
-}
-
-/**
- * Returns a list of constants.
- */
-export function getConstants(): Constants {
-    return new Constants()
 }
 
 /**

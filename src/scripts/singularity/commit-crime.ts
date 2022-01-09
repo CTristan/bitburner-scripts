@@ -1,7 +1,9 @@
 import { NS } from "@ns"
-import { getConstants, isWorking } from "/scripts/utils.js"
+import * as Constants from "/classes/constants.js"
+import { isWorking } from "/scripts/utils.js"
 
-const workType = getConstants().WorkTypes.Crime
+const Crimes = Constants.Crimes
+const workType = Constants.WorkTypes.Crime
 
 /**
  * Commits crimes, sorted by profitability.
@@ -13,11 +15,10 @@ export async function main(ns: NS): Promise<void> {
     // Minimum number of kills needed to join all factions
     const killMinimum = 30
 
-    const crimes = getConstants().Crimes
     const lethalCrimes = ["assassination", "homicide"]
 
-    for (let i = 0; i < crimes.length; i++) {
-        const crime = crimes[i]
+    for (const key in Crimes) {
+        const crime = Crimes[key]
         let crimeChance = ns.getCrimeChance(crime.name)
 
         // Lethal crimes are a special case and we want to max

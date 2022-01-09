@@ -1,20 +1,17 @@
 import { NS } from "@ns"
-import { getConstants, isWorking } from "/scripts/utils.js"
+import * as Constants from "/classes/constants.js"
+import { isWorking } from "/scripts/utils.js"
 
-const workType = getConstants().WorkTypes.CreateProgram
+const Programs = Constants.Programs
+const workType = Constants.WorkTypes.CreateProgram
 
 /** @param {NS} ns **/
 export async function main(ns: NS): Promise<void> {
-    const constants = getConstants()
-    const Programs = constants.Programs
-
-    const hackLevel = ns.getHackingLevel()
-    for (let i = 0; i < Programs.length; i++) {
-        const program = Programs[i]
-
+    for (const key in Programs) {
+        const program = Programs[key]
         if (
             !ns.fileExists(program.name) &&
-            hackLevel >= program.hackLevelReq &&
+            ns.getHackingLevel() >= program.hackLevelReq &&
             ns.createProgram(program.name)
         ) {
             // Keep checking that we haven't bought the program since starting

@@ -1,5 +1,6 @@
 import { NS } from "@ns"
-import { getConstants, forceRunScript } from "/scripts/utils.js"
+import * as Constants from "/classes/constants.js"
+import { forceRunScript } from "/scripts/utils.js"
 
 /**
  * Perform the next work that is important.
@@ -14,7 +15,7 @@ import { getConstants, forceRunScript } from "/scripts/utils.js"
  * @param ns
  */
 export async function main(ns: NS): Promise<void> {
-    const WorkTypes = getConstants().WorkTypes
+    const WorkTypes = Constants.WorkTypes
     const prioritizedWork = [
         WorkTypes.CreateProgram,
         WorkTypes.Factions,

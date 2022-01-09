@@ -1,7 +1,8 @@
 import { NS } from "@ns"
-import { getConstants, isWorking } from "/scripts/utils.js"
+import * as Constants from "/classes/constants.js"
+import { isWorking } from "/scripts/utils.js"
 
-const workType = getConstants().WorkTypes.StudyClass
+const workType = Constants.WorkTypes.StudyClass
 
 /**
  * Checks which stat is the lowest and takes the corresponding university or gym class.
