@@ -92,7 +92,7 @@ export async function attemptToPerformWork(
 ): Promise<void> {
     // Check if we are currently working on a whitelisted work type
     const currentWorkType = ns.getPlayer().workType
-    if (ns.isBusy() && whitelist.indexOf(currentWorkType) > -1) {
+    if (whitelist.indexOf(currentWorkType) > -1) {
         return
     }
 
