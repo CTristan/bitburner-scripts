@@ -93,7 +93,7 @@ export async function attemptToPerformWork(
     // Check if we are currently working on a whitelisted work type
     const currentWorkType = ns.getPlayer().workType
     if (whitelist.indexOf(currentWorkType) > -1) {
-        return
+        ns.exit()
     }
 
     await forceRunScript(ns, script, "home")

@@ -40,6 +40,12 @@ export async function main(ns: NS): Promise<void> {
                     await ns.sleep(1000)
                 }
             }
+
+            // If we started work on something else, we need to exit or we'll
+            // just start working somewhere else
+            if (!isWorking(ns, workType)) {
+                ns.exit()
+            }
         }
     }
 
