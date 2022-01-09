@@ -1,10 +1,10 @@
-import { NS } from "@ns"
-import * as Constants from "/classes/constants.js"
-import { isWorking } from "/scripts/utils.js"
+import { NS } from "@ns";
+import * as Constants from "/classes/constants.js";
+import { isWorking } from "/scripts/utils.js";
 
-const Companies = Constants.Companies
+const Companies = Constants.Companies;
 
-const workType = Constants.WorkTypes.Company
+const workType = Constants.WorkTypes.Company;
 
 /**
  * Works for the most profitable company we qualify for.
@@ -13,9 +13,9 @@ const workType = Constants.WorkTypes.Company
  */
 export async function main(ns: NS): Promise<void> {
     for (const key in Companies) {
-        const company = Companies[key]
+        const company = Companies[key];
 
-        ns.applyToCompany(company.name, "Software")
+        ns.applyToCompany(company.name, "Software");
 
         if (
             ns.getCompanyRep(company.name) < company.repReq &&
@@ -28,7 +28,7 @@ export async function main(ns: NS): Promise<void> {
                 isWorking(ns, workType)
             ) {
                 if (ns.applyToCompany(company.name, "Software")) {
-                    ns.workForCompany(company.name, ns.isFocused())
+                    ns.workForCompany(company.name, ns.isFocused());
                 }
 
                 // Sleep until we gain 1000 rep (taking the early cancel penalty
@@ -37,20 +37,12 @@ export async function main(ns: NS): Promise<void> {
                     ns.getPlayer().workRepGained < 1000 * 2 &&
                     isWorking(ns, workType)
                 ) {
-                    await ns.sleep(1000)
+                    await ns.sleep(1000);
                 }
             }
 
-            // If we started work on something else, we need to exit or we'll
-            // just start working somewhere else
-            if (!isWorking(ns, workType)) {
-                ns.exit()
-            }
+            // We got our rep so let's exit so we don't interrupt anything
+            ns.exit();
         }
-    }
-
-    // If we're still working at a company, we can stop now
-    if (isWorking(ns, workType)) {
-        ns.stopAction()
     }
 }
