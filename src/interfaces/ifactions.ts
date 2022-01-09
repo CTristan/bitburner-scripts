@@ -1,0 +1,34 @@
+export interface IFactions {
+    [key: string]: string;
+    BitRunners: string;
+    BlackHand: string;
+    CyberSec: string;
+    NiteSec: string;
+    Netburners: string;
+    SlumSnakes: string;
+    Sector12: string;
+    Ishima: string;
+    Volhaven: string;
+    Tetrads: string;
+    TianDiHui: string;
+    Aevum: string;
+    NewTokyo: string;
+    Chongqing: string;
+    MegaCorp: string;
+    ECorp: string;
+    KuaiGong: string;
+    FourSigma: string;
+    NWO: string;
+    Blade: string;
+    OmniTek: string;
+    Bachman: string;
+    Clarke: string;
+    Fulcrum: string;
+    Silhouette: string;
+    Speakers: string;
+    DarkArmy: string;
+    Syndicate: string;
+    Covenant: string;
+    Daedalus: string;
+    Illuminati: string;
+}

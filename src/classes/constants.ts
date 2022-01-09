@@ -1,13 +1,18 @@
-import { Company } from "./company"
-import { Crime } from "./crime"
-import { Program } from "./program"
+import { ICities } from "/interfaces/icities.js";
+import { ICompanies } from "/interfaces/icompanies.js";
+import { ICrimes } from "/interfaces/icrimes.js";
+import { IFactions } from "/interfaces/ifactions.js";
+import { IPrograms } from "/interfaces/iprograms.js";
+import { ITasks } from "/interfaces/itasks.js";
+import { IWorkTypes } from "/interfaces/iworktypes.js";
 
-export const Factions: IMap<string> = {
+export const Factions: IFactions = {
     // Main Quest
     CyberSec: "CyberSec", // 18,750
     NiteSec: "NiteSec", // 112,500
     BlackHand: "The Black Hand", // 175,000
     BitRunners: "BitRunners", // 1,000,000
+    Daedalus: "Daedalus", // 2,500,000
 
     // Side Quests
     Netburners: "Netburners", // 12,500
@@ -39,11 +44,10 @@ export const Factions: IMap<string> = {
     // Endgame
 
     Covenant: "The Covenant",
-    Daedalus: "Daedalus",
     Illuminati: "Illuminati",
-}
+};
 
-export const Cities: IMap<string> = {
+export const Cities: ICities = {
     // Starting city
     Sector12: "Sector-12",
 
@@ -55,9 +59,9 @@ export const Cities: IMap<string> = {
     Ishima: "Ishima",
     NewTokyo: "New Tokyo",
     Volhaven: "Volhaven",
-}
+};
 
-export const Companies: IMap<Company> = {
+export const Companies: ICompanies = {
     Fulcrum: { name: "Fulcrum Technologies", repReq: 250e3 },
     KuaiGong: { name: "KuaiGong International", repReq: 200e3 },
     Clarke: { name: "Clarke Incorporated", repReq: 200e3 },
@@ -67,9 +71,9 @@ export const Companies: IMap<Company> = {
     Blade: { name: "Blade Industries", repReq: 200e3 },
     ECorp: { name: "ECorp", repReq: 200e3 },
     MegaCorp: { name: "MegaCorp", repReq: 200e3 },
-}
+};
 
-export const Crimes: IMap<Crime> = {
+export const Crimes: ICrimes = {
     // Sorted by most profitable
     Heist: { name: "heist", time: 600 },
     Assassination: { name: "assassination", time: 300 },
@@ -83,9 +87,9 @@ export const Crimes: IMap<Crime> = {
     Larceny: { name: "larceny", time: 90 },
     Shoplift: { name: "shoplift", time: 2 },
     RobStore: { name: "rob store", time: 60 },
-}
+};
 
-export const Programs: IMap<Program> = {
+export const Programs: IPrograms = {
     BruteSSH: { name: "BruteSSH.exe", hackLevelReq: 50 },
     FTPCrack: { name: "FTPCrack.exe", hackLevelReq: 100 },
     RelaySMTP: { name: "relaySMTP.exe", hackLevelReq: 250 },
@@ -96,24 +100,19 @@ export const Programs: IMap<Program> = {
     AutoLink: { name: "AutoLink.exe", hackLevelReq: 25 },
     ServerProfiler: { name: "ServerProfiler.exe", hackLevelReq: 75 },
     Formulas: { name: "Formulas.exe", hackLevelReq: 1000 },
-}
+};
 
-export const Tasks: IMap<string> = {
+export const Tasks: ITasks = {
     Grow: "grow",
     Hack: "hack",
     Weaken: "weaken",
-}
+};
 
-export const WorkTypes: IMap<string> = {
+export const WorkTypes: IWorkTypes = {
     Company: "Working for Company",
     CompanyPartTime: "Working for Company part-time",
     CreateProgram: "Working on Create a Program",
     Crime: "Committing a crime",
     Factions: "Working for Faction",
     StudyClass: "Studying or Taking a class at university",
-}
-
-// prettier-ignore
-interface IMap<T> {
-    [key: string]: T;
-}
+};
