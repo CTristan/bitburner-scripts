@@ -3,6 +3,7 @@ import { ICompanies } from "/interfaces/icompanies.js";
 import { ICrimes } from "/interfaces/icrimes.js";
 import { IFactions } from "/interfaces/ifactions.js";
 import { IPrograms } from "/interfaces/iprograms.js";
+import { IStats } from "/interfaces/istats.js";
 import { ITasks } from "/interfaces/itasks.js";
 import { IWorkTypes } from "/interfaces/iworktypes.js";
 
@@ -74,19 +75,126 @@ export const Companies: ICompanies = {
 };
 
 export const Crimes: ICrimes = {
-    // Sorted by most profitable
-    Heist: { name: "heist", time: 600 },
-    Assassination: { name: "assassination", time: 300 },
-    Kidnap: { name: "kidnap", time: 120 },
-    GrandTheftAuto: { name: "grand theft auto", time: 80 },
-    Homicide: { name: "homicide", time: 3 },
-    TraffickArms: { name: "traffick arms", time: 40 },
-    BondForgery: { name: "bond forgery", time: 300 },
-    DealDrugs: { name: "deal drugs", time: 10 },
-    Mug: { name: "mug", time: 4 },
-    Larceny: { name: "larceny", time: 90 },
-    Shoplift: { name: "shoplift", time: 2 },
-    RobStore: { name: "rob store", time: 60 },
+    Assassination: {
+        name: "assassination",
+        time: 300,
+        money: 12000000,
+        strExp: 300,
+        defExp: 300,
+        dexExp: 300,
+        agiExp: 300,
+        chaExp: 0,
+    },
+    BondForgery: {
+        name: "bond forgery",
+        time: 300,
+        money: 4500,
+        strExp: 0,
+        defExp: 0,
+        dexExp: 150,
+        agiExp: 0,
+        chaExp: 15,
+    },
+    DealDrugs: {
+        name: "deal drugs",
+        time: 10,
+        money: 120,
+        strExp: 0,
+        defExp: 0,
+        dexExp: 5,
+        agiExp: 5,
+        chaExp: 10,
+    },
+    GrandTheftAuto: {
+        name: "grand theft auto",
+        time: 80,
+        money: 1600,
+        strExp: 20,
+        defExp: 20,
+        dexExp: 20,
+        agiExp: 80,
+        chaExp: 40,
+    },
+    Heist: {
+        name: "heist",
+        time: 600,
+        money: 120000000,
+        strExp: 450,
+        defExp: 450,
+        dexExp: 450,
+        agiExp: 450,
+        chaExp: 450,
+    },
+    Homicide: {
+        name: "homicide",
+        time: 3,
+        money: 45,
+        strExp: 2,
+        defExp: 2,
+        dexExp: 2,
+        agiExp: 2,
+        chaExp: 0,
+    },
+    Larceny: {
+        name: "larceny",
+        time: 90,
+        money: 800,
+        strExp: 0,
+        defExp: 0,
+        dexExp: 60,
+        agiExp: 60,
+        chaExp: 0,
+    },
+    Kidnap: {
+        name: "kidnap",
+        time: 120,
+        money: 3600,
+        strExp: 80,
+        defExp: 80,
+        dexExp: 80,
+        agiExp: 80,
+        chaExp: 80,
+    },
+    Mug: {
+        name: "mug",
+        time: 4,
+        money: 36,
+        strExp: 3,
+        defExp: 3,
+        dexExp: 3,
+        agiExp: 3,
+        chaExp: 0,
+    },
+    RobStore: {
+        name: "rob store",
+        time: 60,
+        money: 400,
+        strExp: 0,
+        defExp: 0,
+        dexExp: 45,
+        agiExp: 45,
+        chaExp: 0,
+    },
+    Shoplift: {
+        name: "shoplift",
+        time: 2,
+        money: 15,
+        strExp: 0,
+        defExp: 0,
+        dexExp: 2,
+        agiExp: 2,
+        chaExp: 0,
+    },
+    TraffickArms: {
+        name: "traffick arms",
+        time: 40,
+        money: 600,
+        strExp: 20,
+        defExp: 20,
+        dexExp: 20,
+        agiExp: 20,
+        chaExp: 40,
+    },
 };
 
 export const Programs: IPrograms = {
@@ -106,6 +214,15 @@ export const Tasks: ITasks = {
     Grow: "grow",
     Hack: "hack",
     Weaken: "weaken",
+};
+
+export const Stats: IStats = {
+    Agility: "agility",
+    Charisma: "charisma",
+    Defense: "defense",
+    Dexterity: "dexterity",
+    Hacking: "hacking",
+    Strength: "strength",
 };
 
 export const WorkTypes: IWorkTypes = {

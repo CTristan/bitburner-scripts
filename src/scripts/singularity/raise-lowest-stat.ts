@@ -1,59 +1,77 @@
-import { NS } from "@ns"
-import * as Constants from "/classes/constants.js"
-import { isWorking } from "/scripts/utils.js"
-
-const workType = Constants.WorkTypes.StudyClass
+import { NS } from "@ns";
+import * as Constants from "/classes/constants.js";
 
 /**
- * Checks which stat is the lowest and takes the corresponding university or gym class.
- * Only activates if we're not busy with something else.
+ * Checks which stat is the lowest and commits the relevant crime for the
+ * most optimal gain.
  *
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    const gyms = [
-        "Powerhouse Gym", // Sector-12
-        "Millenium Fitness Gym", // Volhaven
-    ]
-    const universities = [
-        "Rothman University", // Sector-12
-        "ZB Institute of Technology", // Volhaven
-    ]
-    const player = ns.getPlayer()
-    let stats = [
-        { name: "Algorithms", level: player.hacking },
-        { name: "strength", level: player.strength },
-        { name: "defense", level: player.defense },
-        { name: "dexterity", level: player.dexterity },
-        { name: "agility", level: player.agility },
-        { name: "Leadership", level: player.charisma },
-    ]
-    stats = stats.sort((a, b) => a.level - b.level)
+    const player = ns.getPlayer();
+    let stats = [];
 
-    for (let i = 0; i < stats.length; i++) {
-        const stat = stats[i]
+    for (const key in Constants.Stats) {
+        const stat = Constants.Stats[key];
+        let level = 0;
 
-        // Workout or study until we work on something else
-        if (stat.name === "Algorithms" || stat.name === "Leadership") {
-            for (let j = 0; j < universities.length; j++) {
-                const university = universities[j]
-
-                if (ns.universityCourse(university, stat.name)) {
-                    while (isWorking(ns, workType)) {
-                        await ns.sleep(1000)
-                    }
-                }
+        // Search the properties in player to find our stat
+        Object.entries(player).forEach(([key, value]) => {
+            if (key === stat) {
+                level = value;
             }
-        } else {
-            for (let j = 0; j < gyms.length; j++) {
-                const gym = gyms[j]
+        });
 
-                if (ns.gymWorkout(gym, stat.name)) {
-                    while (isWorking(ns, workType)) {
-                        await ns.sleep(1000)
-                    }
-                }
-            }
+        stats.push({ name: stat, level: level });
+    }
+
+    // Sort by lowest stat
+    stats = stats.sort((a, b) => a.level - b.level);
+    const stat = stats[0].name;
+
+    // Get the crimes that raise this stat
+    let crimes = [];
+    for (const key in Constants.Crimes) {
+        const crime = Constants.Crimes[key];
+
+        let crimeStatGain = 0;
+        switch (stat) {
+            case Constants.Stats.Agility:
+                crimeStatGain = crime.agiExp;
+                break;
+            case Constants.Stats.Charisma:
+                crimeStatGain = crime.chaExp;
+                break;
+            case Constants.Stats.Defense:
+                crimeStatGain = crime.defExp;
+                break;
+            case Constants.Stats.Dexterity:
+                crimeStatGain = crime.dexExp;
+                break;
+            case Constants.Stats.Strength:
+                crimeStatGain = crime.strExp;
+                break;
+            default:
+                break;
+        }
+
+        if (crimeStatGain > 0) {
+            const crimeChance = ns.getCrimeChance(crime.name);
+
+            crimes.push({
+                name: crime.name,
+                time: crime.time,
+                profitability: crime.money / crime.time / crimeChance,
+                statGain: crimeStatGain / crimeChance,
+            });
         }
     }
+
+    // Sort crimes by profitability first then by stat gain
+    // In case of stat gain ties we want to choose the most profitable
+    crimes = crimes.sort((a, b) => b.profitability - a.profitability);
+    crimes = crimes.sort((a, b) => b.statGain - a.statGain);
+
+    ns.commitCrime(crimes[0].name);
+    await ns.sleep(crimes[0].time);
 }
