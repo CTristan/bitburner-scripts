@@ -1,4 +1,4 @@
 export interface IProgram {
-    name: string;
-    hackLevelReq: number;
+  name: string;
+  hackLevelReq: number;
 }

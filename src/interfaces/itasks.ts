@@ -1,6 +1,6 @@
 export interface ITasks {
-    [key: string]: string;
-    Grow: string;
-    Hack: string;
-    Weaken: string;
+  [key: string]: string;
+  Grow: string;
+  Hack: string;
+  Weaken: string;
 }

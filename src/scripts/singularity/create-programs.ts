@@ -1,26 +1,24 @@
-// Bitburner-specific rule exceptions
-/* eslint-disable import/no-absolute-path */
-import { NS } from '@ns'
-import * as Constants from '/classes/constants.js'
-import { isWorking } from '/scripts/utils.js'
+import { NS } from '@ns';
+import * as Constants from '/classes/constants.js';
+import { isWorking } from '/scripts/utils.js';
 
-const workType = Constants.WorkTypes.CreateProgram
+const workType = Constants.WorkTypes.CreateProgram;
 
 /** @param {NS} ns **/
-export async function main (ns: NS): Promise<void> {
-  let programs = []
+export async function main(ns: NS): Promise<void> {
+  let programs = [];
   for (const key in Constants.Programs) {
-    const program = Constants.Programs[key]
+    const program = Constants.Programs[key];
 
     programs.push({
       name: program.name,
-      hackLevelReq: program.hackLevelReq
-    })
+      hackLevelReq: program.hackLevelReq,
+    });
   }
 
   // Sort the programs by hacking level required so we get the easy
   // ones done first
-  programs = programs.sort((a, b) => a.hackLevelReq - b.hackLevelReq)
+  programs = programs.sort((a, b) => a.hackLevelReq - b.hackLevelReq);
 
   for (const program of programs) {
     if (
@@ -31,18 +29,18 @@ export async function main (ns: NS): Promise<void> {
       // Keep checking that we haven't bought the program since starting to
       // create the program
       while (!ns.fileExists(program.name) && isWorking(ns, workType)) {
-        await ns.sleep(1000)
+        await ns.sleep(1000);
       }
 
       // We're done writing the program, let's exit so we don't
       // interrupt anything else
-      ns.exit()
+      ns.exit();
     }
   }
 
   // If we have no programs left to create but are still working on one,
   // let's stop that
   if (isWorking(ns, workType)) {
-    ns.stopAction()
+    ns.stopAction();
   }
 }
