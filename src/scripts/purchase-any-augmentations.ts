@@ -58,6 +58,8 @@ export async function main(ns: NS): Promise<void> {
     const alwaysAvailableAug = "NeuroFlux Governor";
     for (const key in Factions) {
         const faction = Factions[key];
-        ns.purchaseAugmentation(faction.name, alwaysAvailableAug);
+        while (ns.purchaseAugmentation(faction.name, alwaysAvailableAug)) {
+            await ns.sleep(1000);
+        }
     }
 }
