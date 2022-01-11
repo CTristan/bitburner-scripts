@@ -2,6 +2,7 @@ import { ICities } from "/interfaces/icities.js";
 import { ICompanies } from "/interfaces/icompanies.js";
 import { ICrimes } from "/interfaces/icrimes.js";
 import { IFactions } from "/interfaces/ifactions.js";
+import { IPositions } from "/interfaces/ipositions.js";
 import { IPrograms } from "/interfaces/iprograms.js";
 import { IStats } from "/interfaces/istats.js";
 import { ITasks } from "/interfaces/itasks.js";
@@ -83,6 +84,7 @@ export const Factions: IFactions = {
         cities: [Cities.NewTokyo],
         enemies: [Cities.Aevum, Cities.Sector12, Cities.Volhaven],
     }, // 112,500
+    Blade: { name: "Blade Industries", cities: [], enemies: [] }, // 562,500
     Fulcrum: {
         name: "Fulcrum Secret Technologies",
         cities: [],
@@ -94,7 +96,6 @@ export const Factions: IFactions = {
     KuaiGong: { name: "KuaiGong International", cities: [], enemies: [] },
     FourSigma: { name: "Four Sigma", cities: [], enemies: [] },
     NWO: { name: "NWO", cities: [], enemies: [] },
-    Blade: { name: "Blade Industries", cities: [], enemies: [] },
     OmniTek: { name: "OmniTek Incorporated", cities: [], enemies: [] },
     Bachman: { name: "Bachman & Associates", cities: [], enemies: [] },
     Clarke: { name: "Clarke Incorporated", cities: [], enemies: [] },
@@ -120,27 +121,103 @@ export const Factions: IFactions = {
     Illuminati: { name: "Illuminati", cities: [], enemies: [] },
 };
 
+export const Positions: IPositions = {
+    Agent: { name: "Agent", repMin: 8000 },
+    PartTime: { name: "part-time Employee", repMin: 0 },
+    Software: { name: "Software", repMin: 0 },
+    SoftwareConsultant: { name: "Software Consultant", repMin: 0 },
+};
+
 export const Companies: ICompanies = {
     // Companies with their own faction
-    MegaCorp: { name: "MegaCorp", repReq: 200e3, salaryMult: 3 },
-    ECorp: { name: "ECorp", repReq: 200e3, salaryMult: 3 },
-    Blade: { name: "Blade Industries", repReq: 200e3, salaryMult: 2.75 },
-    NWO: { name: "NWO", repReq: 200e3, salaryMult: 2.75 },
-    Bachman: { name: "Bachman & Associates", repReq: 200e3, salaryMult: 2.6 },
-    Clarke: { name: "Clarke Incorporated", repReq: 200e3, salaryMult: 2.25 },
-    OmniTek: { name: "OmniTek Incorporated", repReq: 200e3, salaryMult: 2.25 },
-    FourSigma: { name: "Four Sigma", repReq: 200e3, salaryMult: 2.5 },
+    MegaCorp: {
+        name: "MegaCorp",
+        repReq: 200e3,
+        salaryMult: 3,
+        position: Positions.Software,
+    },
+    ECorp: {
+        name: "ECorp",
+        repReq: 200e3,
+        salaryMult: 3,
+        position: Positions.Software,
+    },
+    Blade: {
+        name: "Blade Industries",
+        repReq: 200e3,
+        salaryMult: 2.75,
+        position: Positions.Software,
+    },
+    NWO: {
+        name: "NWO",
+        repReq: 200e3,
+        salaryMult: 2.75,
+        position: Positions.Software,
+    },
+    Bachman: {
+        name: "Bachman & Associates",
+        repReq: 200e3,
+        salaryMult: 2.6,
+        position: Positions.Software,
+    },
+    Clarke: {
+        name: "Clarke Incorporated",
+        repReq: 200e3,
+        salaryMult: 2.25,
+        position: Positions.Software,
+    },
+    OmniTek: {
+        name: "OmniTek Incorporated",
+        repReq: 200e3,
+        salaryMult: 2.25,
+        position: Positions.Software,
+    },
+    FourSigma: {
+        name: "Four Sigma",
+        repReq: 200e3,
+        salaryMult: 2.5,
+        position: Positions.Software,
+    },
     KuaiGong: {
         name: "KuaiGong International",
         repReq: 200e3,
         salaryMult: 2.2,
+        position: Positions.Software,
     },
-    Fulcrum: { name: "Fulcrum Technologies", repReq: 250e3, salaryMult: 2 },
+    Fulcrum: {
+        name: "Fulcrum Technologies",
+        repReq: 250e3,
+        salaryMult: 2,
+        position: Positions.Software,
+    },
 
     // Companies that have an Agent position
-    CIA: { name: "Central Intelligence Agency", repReq: 8e3, salaryMult: 2 },
-    NSA: { name: "National Security Agency", repReq: 8e3, salaryMult: 2 },
-    Carmichael: { name: "Carmichael Security", repReq: 8e3, salaryMult: 1.2 },
+    CIA: {
+        name: "Central Intelligence Agency",
+        repReq: 8e3,
+        salaryMult: 2,
+        position: Positions.Agent,
+    },
+    NSA: {
+        name: "National Security Agency",
+        repReq: 8e3,
+        salaryMult: 2,
+        position: Positions.Agent,
+    },
+    Carmichael: {
+        name: "Carmichael Security",
+        repReq: 8e3,
+        salaryMult: 1.2,
+        position: Positions.Agent,
+    },
+
+    // Always available
+    Foodnstuff: {
+        name: "Foodnstuff",
+        repReq: 0,
+        salaryMult: 1,
+        position: Positions.PartTime,
+    },
 };
 
 export const Crimes: ICrimes = {

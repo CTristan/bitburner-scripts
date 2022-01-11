@@ -1,5 +1,6 @@
 import { NS } from "@ns";
 import * as Constants from "/classes/constants.js";
+import { IPosition } from "/interfaces/iposition.js";
 import { isWorking } from "/scripts/utils.js";
 
 const Companies = Constants.Companies;
@@ -19,6 +20,7 @@ export async function main(ns: NS): Promise<void> {
             name: company.name,
             repReq: company.repReq,
             salaryMult: company.salaryMult,
+            position: company.position,
             favor: ns.getCompanyFavor(company.name),
         });
     }
@@ -30,10 +32,9 @@ export async function main(ns: NS): Promise<void> {
     companies = companies.sort((a, b) => a.favor - b.favor);
 
     for (const company of companies) {
-        ns.applyToCompany(company.name, "Software");
-
         if (
             ns.getCompanyRep(company.name) < company.repReq &&
+            applyToCompany(ns, company.name, company.position) &&
             ns.workForCompany(company.name, ns.isFocused())
         ) {
             // Work until we meet the reputation requirement or start working
@@ -42,7 +43,7 @@ export async function main(ns: NS): Promise<void> {
                 ns.getCompanyRep(company.name) < company.repReq &&
                 isWorking(ns, workType)
             ) {
-                ns.applyToCompany(company.name, "Software");
+                applyToCompany(ns, company.name, company.position);
                 ns.workForCompany(company.name, ns.isFocused());
 
                 /**
@@ -62,4 +63,39 @@ export async function main(ns: NS): Promise<void> {
             ns.exit();
         }
     }
+}
+
+/**
+ * Attempts to apply to the company and returns whether we were successful.
+ *
+ * @param ns
+ * @param companyName
+ * @param companyPosition
+ * @returns True if we successfully applied to the company.
+ */
+function applyToCompany(
+    ns: NS,
+    companyName: string,
+    companyPosition: IPosition
+): boolean {
+    /**
+     * If we're already employed at this company, let's go apply to another
+     * company so we don't return a false negative. We do this because we want to
+     * also make sure we apply for promoted positions at the same time.
+     */
+    if (ns.getPlayer().companyName === companyName) {
+        ns.applyToCompany(
+            Constants.Companies.Foodnstuff.name,
+            Constants.Positions.PartTime.name
+        );
+    }
+
+    if (ns.getCompanyRep(companyName) < companyPosition.repMin) {
+        return ns.applyToCompany(
+            companyName,
+            Constants.Positions.Software.name
+        );
+    }
+
+    return ns.applyToCompany(companyName, companyPosition.name);
 }
