@@ -212,8 +212,8 @@ export const Companies: ICompanies = {
     },
 
     // Always available
-    Foodnstuff: {
-        name: "Foodnstuff",
+    FoodNStuff: {
+        name: "FoodNStuff",
         repReq: 0,
         salaryMult: 1,
         position: Positions.PartTime,

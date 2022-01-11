@@ -8,7 +8,7 @@ export interface ICompanies {
     CIA: ICompany;
     Clarke: ICompany;
     ECorp: ICompany;
-    Foodnstuff: ICompany;
+    FoodNStuff: ICompany;
     FourSigma: ICompany;
     Fulcrum: ICompany;
     KuaiGong: ICompany;

@@ -85,7 +85,7 @@ function applyToCompany(
      */
     if (ns.getPlayer().companyName === companyName) {
         ns.applyToCompany(
-            Constants.Companies.Foodnstuff.name,
+            Constants.Companies.FoodNStuff.name,
             Constants.Positions.PartTime.name
         );
     }
