@@ -60,7 +60,7 @@ export async function forceRunScript(
 
     // If our max RAM is less than the script requires
     // then we'll just skip it
-    const scriptRam = ns.getScriptRam(script);
+    const scriptRam = ns.getScriptRam(script) * 1.2;
     const serverMaxRam = ns.getServerMaxRam(server);
     if (serverMaxRam < scriptRam) {
         ns.print(
