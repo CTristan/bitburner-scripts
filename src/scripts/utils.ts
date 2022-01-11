@@ -37,20 +37,37 @@ export function connectTo(ns: NS, server: string, parentServer = ""): boolean {
 /**
  * Forces a script to run by constantly trying to run it until enough
  * RAM is free.
+ *
+ * If the server's max RAM is too small then this will return false as we will
+ * never be able to run the script.
+ *
  * @param {NS} ns
  * @param {string} script Script to force to run.
+ * @returns True if the script was successful.
  */
 export async function forceRunScript(
     ns: NS,
     script: string,
     server = "home",
     ...args: Array<string | number | boolean>
-): Promise<void> {
+): Promise<boolean> {
     // Sanity check that the script actually exists
     if (!ns.fileExists(script)) {
         throw new Error(
             `Invalid script "${script}" in forceRunScript in utils.js`
         );
+    }
+
+    // If our max RAM is less than the script requires
+    // then we'll just skip it
+    const scriptRam = ns.getScriptRam(script);
+    const serverMaxRam = ns.getServerMaxRam(server);
+    if (serverMaxRam < scriptRam) {
+        ns.print(
+            `Unable to run script ${script}, requires ${scriptRam}GB but the
+            server only has a max of ${serverMaxRam}GB available`
+        );
+        return false;
     }
 
     if (!ns.isRunning(script, "home")) {
@@ -61,6 +78,8 @@ export async function forceRunScript(
             scriptStarted = runScript(ns, script, server, ...args);
         }
     }
+
+    return true;
 }
 
 /**
