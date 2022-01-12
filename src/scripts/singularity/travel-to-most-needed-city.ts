@@ -17,8 +17,8 @@ export async function main(ns: NS): Promise<void> {
     let favor = Number.MAX_VALUE;
 
     for (const key in Constants.Cities) {
-        const cityName = Constants.Cities[key];
-        const cityFavor = ns.getFactionFavor(cityName);
+        const cityName = Constants.Cities[key],
+            cityFavor = ns.getFactionFavor(cityName);
         if (cityFavor < favor) {
             city = cityName;
             favor = cityFavor;
@@ -63,10 +63,10 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
 
         if (faction.cities.length > 0) {
             factions.push({
-                name: faction.name,
                 cities: faction.cities,
                 enemies: faction.enemies,
                 favor: ns.getFactionFavor(faction.name),
+                name: faction.name,
             });
         }
     }

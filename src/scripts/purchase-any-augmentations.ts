@@ -12,8 +12,8 @@ const Factions = Constants.Factions;
 export async function main(ns: NS): Promise<void> {
     let ownedAugs = ns.getOwnedAugmentations(true);
     for (const key in Factions) {
-        const faction = Factions[key];
-        const factionAugs = ns.getAugmentationsFromFaction(faction.name);
+        const faction = Factions[key],
+            factionAugs = ns.getAugmentationsFromFaction(faction.name);
 
         // Build a list of augs for the faction that we don't already own.
         let augs = [];
@@ -23,12 +23,12 @@ export async function main(ns: NS): Promise<void> {
             // If we don't already own the aug, let's add it to our list
             if (!ownedAugs.includes(augName)) {
                 const augCost = ns.getAugmentationPrice(augName);
-                augs.push({ augName, augCost });
+                augs.push({ cost: augCost, name: augName });
             }
         }
 
         // Sort the list of augs by cost descending so we can try to purchase the most expensive ones first
-        augs = augs.sort((a, b) => b.augCost - a.augCost);
+        augs = augs.sort((a, b) => b.cost - a.cost);
 
         // If there aren't any new augmentations available, continue to
         // the next faction
@@ -37,7 +37,7 @@ export async function main(ns: NS): Promise<void> {
         }
 
         for (let j = 0; j < augs.length; j++) {
-            const augName = augs[j].augName;
+            const augName = augs[j].name;
 
             /**
              * Try to buy the most expensive augmentation available from the faction.

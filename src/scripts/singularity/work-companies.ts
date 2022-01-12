@@ -3,9 +3,8 @@ import * as Constants from "/classes/constants.js";
 import { IPosition } from "/interfaces/iposition.js";
 import { isWorking } from "/scripts/utils.js";
 
-const Companies = Constants.Companies;
-
-const workType = Constants.WorkTypes.Company;
+const Companies = Constants.Companies,
+    workType = Constants.WorkTypes.Company;
 
 /**
  * Works for the most profitable company we qualify for.
@@ -17,11 +16,11 @@ export async function main(ns: NS): Promise<void> {
     for (const key in Companies) {
         const company = Companies[key];
         companies.push({
+            favor: ns.getCompanyFavor(company.name),
             name: company.name,
+            position: company.position,
             repReq: company.repReq,
             salaryMult: company.salaryMult,
-            position: company.position,
-            favor: ns.getCompanyFavor(company.name),
         });
     }
 

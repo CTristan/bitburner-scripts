@@ -1,6 +1,6 @@
 import { NS } from "@ns";
 import {
-    connectTo,
+    forceRunScript,
     isServerOwned,
     restartWithMaxThreadsIfPossible,
     runScript,
@@ -24,8 +24,8 @@ export async function main(ns: NS): Promise<void> {
     if (hostName == "home") {
         runScript(ns, "/scripts/worm.js");
         runScript(ns, "/scripts/automate-purchases.js");
-        runScript(ns, "/scripts/start-singularity.js", "home", true);
         runScript(ns, "watcher.js");
+        runScript(ns, "/scripts/start-singularity.js", "home", true);
     }
 
     // Make sure we're using the most threads available
@@ -37,20 +37,20 @@ export async function main(ns: NS): Promise<void> {
 
         // Get all of the reachable servers
         ns.print("About to scan for all servers.");
-        const servers = scanForAllServers(ns, true);
-        const bestServer = {
-            serverName: "",
-            dollarsPerSecond: 0,
-        };
+        const servers = scanForAllServers(ns, true),
+            bestServer = {
+                dollarsPerSecond: 0,
+                name: "",
+            };
 
         for (let i = 0; i < servers.length; i++) {
             const server = servers[i];
 
             // Make sure we can actually hack it and we don't own it
             if (ns.hasRootAccess(server) && !isServerOwned(server)) {
-                const moneyAvailable = ns.getServerMoneyAvailable(server);
-                const hackTime = ns.getHackTime(server);
-                const dollarsPerSecond = moneyAvailable / hackTime;
+                const moneyAvailable = ns.getServerMoneyAvailable(server),
+                    hackTime = ns.getHackTime(server),
+                    dollarsPerSecond = moneyAvailable / hackTime;
                 if (dollarsPerSecond > bestServer.dollarsPerSecond) {
                     ns.print(
                         "New best server: " +
@@ -59,26 +59,28 @@ export async function main(ns: NS): Promise<void> {
                             dollarsPerSecond +
                             " dps."
                     );
-                    bestServer.serverName = server;
+                    bestServer.name = server;
                     bestServer.dollarsPerSecond = dollarsPerSecond;
                 }
             }
         }
 
         // Hack the best server, and if it fails weaken and try again
-        if (bestServer.serverName != "") {
-            const server = bestServer.serverName;
-
-            // Manually connect to and hack the server for additional benefits.
-            connectTo(ns, server);
-            const minSecurityLevel = ns.getServerMinSecurityLevel(server);
-            const maxMoney = ns.getServerMaxMoney(server);
+        if (bestServer.name != "") {
+            const server = bestServer.name,
+                minSecurityLevel = ns.getServerMinSecurityLevel(server),
+                maxMoney = ns.getServerMaxMoney(server);
 
             // HWGW is the most profitable cycle.
             // Because multiple scripts might attack the same server, we'll have sanity checks at each step.
             let moneyAvailable = ns.getServerMoneyAvailable(server);
             if (moneyAvailable > 0) {
-                await ns.manualHack();
+                // Try to manually hack first if we have enough RAM for it
+                if (
+                    !forceRunScript(ns, "/scripts/singularity/manually-hack.js")
+                ) {
+                    await ns.hack(server);
+                }
             }
 
             let securityLevel = ns.getServerSecurityLevel(server);
