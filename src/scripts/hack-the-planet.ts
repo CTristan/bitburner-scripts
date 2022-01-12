@@ -26,6 +26,7 @@ export async function main(ns: NS): Promise<void> {
         runScript(ns, "/scripts/automate-purchases.js");
         runScript(ns, "watcher.js");
         runScript(ns, "/scripts/start-singularity.js", "home", true);
+        runScript(ns, "/scripts/singularity/travel-to-most-needed-city.js");
     }
 
     // Make sure we're using the most threads available

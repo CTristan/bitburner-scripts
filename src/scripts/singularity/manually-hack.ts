@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { connectTo } from "../utils";
+import { connectTo } from "/scripts/utils.js";
 
 /**
  * Just a script that calls ns.manualHack() to be used by forceRunScript.

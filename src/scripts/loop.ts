@@ -24,8 +24,9 @@ export async function main(ns: NS): Promise<void> {
             await hackServers(ns);
         }
     } else {
+        // TODO: Set sleep timer for botnet
         // We want to space out the loops so they don't all attack the same server at the exact same time
-        const waitTime = parseInt(ns.args[0].toString()) * 1000;
+        const waitTime = parseInt(ns.args[0].toString());
         await ns.sleep(waitTime);
 
         for (;;) {

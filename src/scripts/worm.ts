@@ -13,15 +13,14 @@ export async function main(ns: NS): Promise<void> {
     // The script name to infect every server with.
     const scripts = ["/scripts/loop.js"],
         // Infect all servers, including purchased servers.
-        servers = scanForAllServers(ns, true).filter(
-            (server) => server != "home"
-        );
+        servers = scanForAllServers(ns, true);
 
     let scriptNumber = 0;
     for (let i = 0; i < servers.length; i++) {
         const server = servers[i];
 
-        if (forceScriptUpdate) {
+        // If we force a script update, we don't want to kill home as well
+        if (forceScriptUpdate && server != "home") {
             ns.killall(server);
         }
 
@@ -52,8 +51,9 @@ export async function hackServer(
     await rootServer(ns, server);
 
     // We need to make sure there's enough memory, so we'll skip any servers
-    // that don't have enough RAM
-    const serverMaxRam = ns.getServerMaxRam(hostname);
+    // that don't have enough RAM. We'll only use 70% of our home server.
+    const ramMult = server.hostname === "home" ? 0.7 : 1,
+        serverMaxRam = ns.getServerMaxRam(hostname) * ramMult;
     let scriptsRam = 0;
     for (const script of scripts) {
         scriptsRam += ns.getScriptRam(script);
@@ -78,10 +78,10 @@ export async function hackServer(
          * available RAM but not enough for the full number of threads.
          */
         let processId = ns.exec(scripts[0], hostname, threads, scriptNumber);
-        while (processId == 0) {
+        while (processId === 0) {
             threads--;
 
-            if (threads === 0) return scriptNumber;
+            if (threads <= 0) return scriptNumber;
 
             processId = ns.exec(scripts[0], hostname, threads, scriptNumber);
         }
