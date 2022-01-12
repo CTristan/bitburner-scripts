@@ -49,7 +49,7 @@ export async function hackServer(
 ): Promise<number> {
     // Root the server before infecting it
     const server = ns.getServer(hostname);
-    rootServer(ns, server);
+    await rootServer(ns, server);
 
     // We need to make sure there's enough memory, so we'll skip any servers
     // that don't have enough RAM
@@ -80,6 +80,9 @@ export async function hackServer(
         let processId = ns.exec(scripts[0], hostname, threads, scriptNumber);
         while (processId == 0) {
             threads--;
+
+            if (threads === 0) return scriptNumber;
+
             processId = ns.exec(scripts[0], hostname, threads, scriptNumber);
         }
 
