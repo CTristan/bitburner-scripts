@@ -5,7 +5,9 @@ const getHash = (input: string): number => {
     let i;
     let chr;
 
-    if (input.length === 0) return hash;
+    if (input.length === 0) {
+        return hash;
+    }
 
     for (i = 0; i < input.length; i++) {
         chr = input.charCodeAt(i);
@@ -41,9 +43,9 @@ export async function main(ns: NS): Promise<void> {
             if (hash != hashes[file]) {
                 ns.tprintf(`INFO: Detected change in ${file}`);
 
-                const processes = ns.ps().filter((p: ProcessInfo) => {
-                    return p.filename == file;
-                });
+                const processes = ns
+                    .ps()
+                    .filter((p: ProcessInfo) => p.filename == file);
 
                 for (const process of processes) {
                     ns.tprintf(

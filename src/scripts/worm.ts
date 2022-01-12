@@ -54,8 +54,10 @@ export async function hackServer(
     const server = ns.getServer(hostname);
     await rootServer(ns, server);
 
-    // We need to make sure there's enough memory, so we'll skip any servers
-    // that don't have enough RAM. We'll only use 70% of our home server.
+    /**
+     * We need to make sure there's enough memory, so we'll skip any servers
+     * that don't have enough RAM. We'll only use 70% of our home server.
+     */
     const ramMult = server.hostname === "home" ? 0.7 : 1;
     const serverMaxRam = ns.getServerMaxRam(hostname) * ramMult;
 
@@ -67,7 +69,9 @@ export async function hackServer(
     }
     await Promise.all(scpTasks);
 
-    if (serverMaxRam < scriptsRam) return scriptNumber;
+    if (serverMaxRam < scriptsRam) {
+        return scriptNumber;
+    }
 
     // Make sure we don't clog up the server with hundreds of processes
     const maxProcesses = 99;
@@ -89,7 +93,9 @@ export async function hackServer(
         while (processId === 0) {
             threads--;
 
-            if (threads <= 0) return scriptNumber;
+            if (threads <= 0) {
+                return scriptNumber;
+            }
 
             processId = ns.exec(scripts[0], hostname, threads, scriptNumber);
         }

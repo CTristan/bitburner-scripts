@@ -13,8 +13,10 @@ export function connectTo(ns: NS, server: string, parentServer = ""): boolean {
         return true;
     }
 
-    // Because we can only connect to neighbors, this implements
-    // a tree-traversal algorithm.
+    /**
+     * Because we can only connect to neighbors, this implements
+     * a tree-traversal algorithm.
+     */
     const servers = ns.scan(hostname).filter((s) => s != parentServer);
     for (let i = 0; i < servers.length; i++) {
         const currentServer = servers[i];
@@ -55,8 +57,10 @@ export async function forceRunScript(
         );
     }
 
-    // If the script would use more than 20% of the server's max RAM, let's
-    // skip it since it may never run
+    /**
+     * If the script would use more than 20% of the server's max RAM, let's
+     * skip it since it may never run
+     */
     const serverMaxRam = ns.getServerMaxRam(server);
     const scriptRam = ns.getScriptRam(script);
 

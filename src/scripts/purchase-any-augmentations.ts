@@ -30,8 +30,10 @@ export async function main(ns: NS): Promise<void> {
         // Sort the list of augs by cost descending so we can try to purchase the most expensive ones first
         augs = augs.sort((a, b) => b.cost - a.cost);
 
-        // If there aren't any new augmentations available, continue to
-        // the next faction
+        /**
+         * If there aren't any new augmentations available, continue to
+         * the next faction
+         */
         if (augs.length === 0) {
             continue;
         }
@@ -53,8 +55,10 @@ export async function main(ns: NS): Promise<void> {
         }
     }
 
-    // Now that we bought all of the faction-specific augmentations, let's spend
-    // the rest of our money on the generic one
+    /**
+     * Now that we bought all of the faction-specific augmentations, let's spend
+     * the rest of our money on the generic one
+     */
     const alwaysAvailableAug = "NeuroFlux Governor";
     for (const key in Factions) {
         const faction = Factions[key];

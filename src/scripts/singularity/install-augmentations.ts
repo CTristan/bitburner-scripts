@@ -11,8 +11,9 @@ const Factions = Constants.Factions;
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    if (checkFactionFavor(ns) || checkPurchasedFactionAugs(ns))
+    if (checkFactionFavor(ns) || checkPurchasedFactionAugs(ns)) {
         await installAugmentations(ns);
+    }
 }
 
 /**
@@ -66,8 +67,10 @@ function checkPurchasedFactionAugs(ns: NS): boolean {
         if (remainingFactionAugs.length === 0) {
             for (const purchasedAug of purchasedAugs) {
                 if (factionAugs.includes(purchasedAug)) {
-                    // If we have a purchased augmentation from the faction and they have
-                    // no more remaining then we want to install them
+                    /**
+                     * If we have a purchased augmentation from the faction and they have
+                     * no more remaining then we want to install them
+                     */
                     return true;
                 }
             }

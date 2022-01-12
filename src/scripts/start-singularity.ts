@@ -3,8 +3,10 @@ import { forceRunScript } from "/scripts/utils.js";
 
 /** @param {NS} ns **/
 export async function main(ns: NS): Promise<void> {
-    // First parameter is whether or not we want to buy programs instead
-    // of creating them.
+    /**
+     * First parameter is whether or not we want to buy programs instead
+     * of creating them.
+     */
     const buyPrograms = ns.args[0];
 
     // Infinite loop so we need to run sequentially

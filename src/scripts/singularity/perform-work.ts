@@ -24,9 +24,11 @@ export async function main(ns: NS): Promise<void> {
         WorkTypes.StudyClass,
     ];
 
-    // As we work through the work list, we'll add them to a priority list of
-    // work types that we don't want to interrupt.
-    // Needs to run sequentially
+    /**
+     * As we work through the work list, we'll add them to a priority list of
+     * work types that we don't want to interrupt.
+     * Needs to run sequentially
+     */
     /* eslint-disable no-await-in-loop */
     const priorityList = [];
     for (let i = 0; i < prioritizedWork.length; i++) {
@@ -101,7 +103,9 @@ export async function attemptToPerformWork(
 
     await forceRunScript(ns, script, "home");
 
-    // Wait for a second to allow the script to run and start work before
-    // before continuing on.
+    /**
+     * Wait for a second to allow the script to run and start work before
+     * before continuing on.
+     */
     await ns.sleep(1000);
 }

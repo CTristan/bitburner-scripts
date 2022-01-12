@@ -16,8 +16,10 @@ export async function main(ns: NS): Promise<void> {
         });
     }
 
-    // Sort the programs by hacking level required so we get the easy
-    // ones done first
+    /**
+     * Sort the programs by hacking level required so we get the easy
+     * ones done first
+     */
     programs = programs.sort((a, b) => a.hackLevelReq - b.hackLevelReq);
 
     let creatingProgram = false;
@@ -32,8 +34,10 @@ export async function main(ns: NS): Promise<void> {
         }
     }
 
-    // If we have no programs left to create but are still working on one,
-    // let's stop that
+    /**
+     * If we have no programs left to create but are still working on one,
+     * let's stop that
+     */
     if (!creatingProgram && isWorking(ns, workType)) {
         ns.stopAction();
     }

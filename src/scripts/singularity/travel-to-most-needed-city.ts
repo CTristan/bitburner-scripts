@@ -96,8 +96,10 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
     // Since we want to join every faction, this needs to run sequentially
     /* eslint-disable no-await-in-loop */
     for (const faction of factions) {
-        // If the faction doesn't require a specific city
-        // then let's check the next one
+        /**
+         * If the faction doesn't require a specific city
+         * then let's check the next one
+         */
         if (faction.cities.length === 0) {
             continue;
         }
@@ -110,8 +112,10 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
             continue;
         }
 
-        // If we don't have faction rep yet
-        // then we'll be in the city until we join the faction
+        /**
+         * If we don't have faction rep yet
+         * then we'll be in the city until we join the faction
+         */
         if (!hasFactionRep(ns, faction.name)) {
             // Need to check if we're already in the city before travelling
             if (!faction.cities.includes(currentCity)) {
@@ -128,7 +132,9 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
 }
 
 async function travelToCity(ns: NS, city: string): Promise<string> {
-    if (isAlreadyInCity(ns, city)) return city;
+    if (isAlreadyInCity(ns, city)) {
+        return city;
+    }
 
     while (!ns.travelToCity(city)) {
         // eslint-disable-next-line no-await-in-loop

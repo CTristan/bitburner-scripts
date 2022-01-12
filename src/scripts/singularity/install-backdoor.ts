@@ -15,8 +15,10 @@ export async function main(ns: NS): Promise<void> {
         await ns.installBackdoor();
     }
 
-    // Has to run after the backdoor is installed, otherwise some files may
-    // still be hidden.
+    /**
+     * Has to run after the backdoor is installed, otherwise some files may
+     * still be hidden.
+     */
     const lore = ns.ls(hostname, ".lit");
 
     // Now that we have a backdoor installed, we can see all of the files

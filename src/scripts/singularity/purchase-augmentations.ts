@@ -30,12 +30,16 @@ export async function main(ns: NS): Promise<void> {
             }
         }
 
-        // Sort the list of augs by cost descending so we can try to purchase
-        // the most expensive ones first
+        /**
+         * Sort the list of augs by cost descending so we can try to purchase
+         * the most expensive ones first
+         */
         augs = augs.sort((a, b) => b.cost - a.cost);
 
-        // If there aren't any new augmentations available from anyone, just
-        // try to buy the always available one
+        /**
+         * If there aren't any new augmentations available from anyone, just
+         * try to buy the always available one
+         */
         if (augs.length === 0) {
             ns.purchaseAugmentation(faction.name, alwaysAvailableAug);
         }
@@ -56,8 +60,10 @@ export async function main(ns: NS): Promise<void> {
             if (ns.purchaseAugmentation(faction.name, augName)) {
                 ownedAugs = ns.getOwnedAugmentations(true);
             } else {
-                // Special case where the most expensive augmentation requires a
-                // lower tier version
+                /**
+                 * Special case where the most expensive augmentation requires a
+                 * lower tier version
+                 */
                 const rep = ns.getFactionRep(faction.name);
                 const repReq = ns.getAugmentationRepReq(augName);
                 const augPrice = ns.getAugmentationPrice(augName);

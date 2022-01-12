@@ -18,8 +18,10 @@ export async function main(ns: NS): Promise<void> {
     for (const key in Factions) {
         const faction = Factions[key];
 
-        // We want to get the required rep based off of the augmentations
-        // that we don't own already
+        /**
+         * We want to get the required rep based off of the augmentations
+         * that we don't own already
+         */
         const augs = ns
             .getAugmentationsFromFaction(faction.name)
             .filter((aug) => !ownedAugs.includes(aug));

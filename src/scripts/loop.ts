@@ -123,8 +123,11 @@ async function weakenServers(ns: NS): Promise<void> {
 
         // Make sure we can actually hack it
         if (ns.hasRootAccess(server)) {
-            // Subtract the min security level to get the widest gap, since we don't want to weaken a server
-            // that is at or close to its minimum security level.
+            /**
+             * Subtract the min security level to get the widest gap, since we
+             * don't want to weaken a server that is at or close to its
+             * minimum security level.
+             */
             const securityLevel =
                 ns.getServerSecurityLevel(server) -
                 ns.getServerMinSecurityLevel(server);
@@ -170,8 +173,11 @@ async function growServers(ns: NS): Promise<void> {
         const server = servers[i];
         // Make sure we can actually hack it
         if (ns.hasRootAccess(server)) {
-            // Subtract the available money from the maximum amount of money to get the widest gap, since we
-            // don't want to grow a server that is at or close to its maximum funds.
+            /**
+             * Subtract the available money from the maximum amount of money to
+             * get the widest gap, since we don't want to grow a server that is
+             * at or close to its maximum funds.
+             */
             const serverMoney =
                 ns.getServerMaxMoney(server) -
                 ns.getServerMoneyAvailable(server);

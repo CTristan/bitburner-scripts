@@ -24,8 +24,10 @@ export async function main(ns: NS): Promise<void> {
         });
     }
 
-    // Sort companies by least favor so we work at the most needed ones first
-    // but first sort by least rep requirements and most salary in case of ties
+    /**
+     * Sort companies by least favor so we work at the most needed ones first
+     * but first sort by least rep requirements and most salary in case of ties
+     */
     companies = companies.sort((a, b) => a.repReq - b.repReq);
     companies = companies.sort((a, b) => b.salaryMult - a.salaryMult);
     companies = companies.sort((a, b) => a.favor - b.favor);
