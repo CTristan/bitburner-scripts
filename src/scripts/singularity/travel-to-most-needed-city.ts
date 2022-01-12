@@ -25,9 +25,6 @@ export async function main(ns: NS): Promise<void> {
         }
     }
 
-    // Travel to that city and join their faction
-    await joinCity(ns, city);
-
     // Join all factions requiring a specific city
     await joinAllCityFactions(ns, city);
 }
@@ -60,9 +57,42 @@ function isAlreadyInCity(ns: NS, city: string): boolean {
  * @param currentCity
  */
 async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
+    let factions = [];
     for (const key in Constants.Factions) {
         const faction = Constants.Factions[key];
 
+        if (faction.cities.length > 0) {
+            factions.push({
+                name: faction.name,
+                cities: faction.cities,
+                enemies: faction.enemies,
+                favor: ns.getFactionFavor(faction.name),
+            });
+        }
+    }
+
+    // Sort factions by least favor
+    factions = factions.sort((a, b) => a.favor - b.favor);
+
+    // Put the city factions first since they will have the least requirements
+    factions = [
+        // First get the city factions we have joined already
+        ...factions.filter(
+            (faction) =>
+                faction.cities.includes(faction.name) &&
+                ns.getFactionRep(faction.name) > 0
+        ),
+        // Then get the other city factions
+        ...factions.filter(
+            (faction) =>
+                faction.cities.includes(faction.name) &&
+                ns.getFactionRep(faction.name) <= 0
+        ),
+        // Finally get all of the non-city factions
+        ...factions.filter((faction) => !faction.cities.includes(faction.name)),
+    ];
+
+    for (const faction of factions) {
         // If the faction doesn't require a specific city
         // then let's check the next one
         if (faction.cities.length === 0) {
@@ -90,15 +120,6 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
                 await ns.sleep(1000);
             }
         }
-    }
-}
-
-async function joinCity(ns: NS, city: string): Promise<void> {
-    await travelToCity(ns, city);
-
-    while (ns.getFactionRep(city) <= 0) {
-        ns.print(`Waiting to join ${city}.`);
-        await ns.sleep(1000);
     }
 }
 

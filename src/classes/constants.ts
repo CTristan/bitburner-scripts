@@ -73,7 +73,16 @@ export const Factions: IFactions = {
         cities: [Cities.Chongqing, Cities.Ishima, Cities.NewTokyo],
         enemies: [],
     }, // 75,000
-    Aevum: { name: "Aevum", cities: [], enemies: [] }, // 100,000
+    Aevum: {
+        name: "Aevum",
+        cities: [Cities.Aevum],
+        enemies: [
+            Cities.Chongqing,
+            Cities.Ishima,
+            Cities.NewTokyo,
+            Cities.Volhaven,
+        ],
+    }, // 100,000
     Chongqing: {
         name: "Chongqing",
         cities: [Cities.Chongqing],
