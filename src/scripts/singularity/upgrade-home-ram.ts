@@ -11,6 +11,6 @@ export async function main(ns: NS): Promise<void> {
     if (ns.upgradeHomeRam()) {
         ns.kill("hack-the-planet.js", "home");
         ns.exec("hack-the-planet.js", "home");
-        forceRunScript(ns, "/scripts/worm.js", "home", true);
+        await forceRunScript(ns, "/scripts/worm.js", "home", true);
     }
 }
