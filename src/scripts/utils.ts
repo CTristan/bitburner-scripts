@@ -58,19 +58,20 @@ export async function forceRunScript(
         );
     }
 
-    // If our max RAM is less than the script requires
-    // then we'll just skip it
-    const scriptRam = ns.getScriptRam(script) * 1.2;
+    // If the script would use more than 20% of the server's max RAM, let's
+    // skip it since it may never run
     const serverMaxRam = ns.getServerMaxRam(server);
-    if (serverMaxRam < scriptRam) {
+    const scriptRam = ns.getScriptRam(script);
+    if (scriptRam > serverMaxRam * 0.2) {
         ns.print(
-            `Unable to run script ${script}, requires ${scriptRam}GB but the
-            server only has a max of ${serverMaxRam}GB available`
+            `Will not run script ${script} because it requires ` +
+                `${scriptRam}GB which is more than 20% of the ${serverMaxRam}GB ` +
+                `available on ${server}`
         );
         return false;
     }
 
-    if (!ns.isRunning(script, "home")) {
+    if (!ns.scriptRunning(script, server)) {
         let scriptStarted = runScript(ns, script, server, ...args);
         while (!scriptStarted) {
             ns.print(`Waiting to start ${script}`);
@@ -94,146 +95,6 @@ export function getThreadCount(ns: NS): number {
     const runningScript = ns.getRunningScript(scriptName, serverName);
 
     return runningScript.threads;
-}
-
-/**
- * Hack the server!
- * @param {NS} ns
- * **/
-export async function hackServer(
-    ns: NS,
-    hostname: string,
-    script: string,
-    script2gb: string
-): Promise<void> {
-    // If we're already running the script then we can skip.
-    if (ns.isRunning(script, hostname, "hack")) {
-        return;
-    }
-
-    // If we own the server then we don't need to actually hack it
-    const server = ns.getServer(hostname);
-    if (!server.purchasedByPlayer && !server.backdoorInstalled) {
-        // Number of ports we can open
-        const portOpeners = [
-            "BruteSSH.exe",
-            "FTPCrack.exe",
-            "relaySMTP.exe",
-            "HTTPWorm.exe",
-            "SQLInject.exe",
-        ];
-        let openablePorts = 0;
-        for (let i = 0; i < portOpeners.length; i++) {
-            if (ns.fileExists(portOpeners[i], "home")) {
-                openablePorts++;
-            }
-        }
-
-        // Ports required to open the server
-        const requiredPorts = ns.getServerNumPortsRequired(hostname);
-
-        // Make sure we can actually hack this server
-        if (
-            ns.getServerRequiredHackingLevel(hostname) > ns.getHackingLevel() ||
-            requiredPorts > openablePorts
-        ) {
-            ns.print(hostname + " is not currently hackable. Skipping.");
-            return;
-        }
-        ns.print("Hacking " + hostname);
-
-        // First check if we're rooted or not
-        if (!ns.hasRootAccess(hostname)) {
-            if (requiredPorts > 0) {
-                ns.brutessh(hostname);
-            }
-            if (requiredPorts > 1) {
-                ns.ftpcrack(hostname);
-            }
-            if (requiredPorts > 2) {
-                ns.relaysmtp(hostname);
-            }
-            if (requiredPorts > 3) {
-                ns.httpworm(hostname);
-            }
-            if (requiredPorts > 4) {
-                ns.sqlinject(hostname);
-            }
-            ns.nuke(hostname);
-        }
-
-        await forceRunScript(
-            ns,
-            "/scripts/singularity/install-backdoor.js",
-            "home",
-            hostname
-        );
-    }
-
-    // Utils needed for all servers
-    await ns.scp("/scripts/utils.js", "home", hostname);
-    await ns.scp("/classes/constants.js", "home", hostname);
-
-    // We want to dedicate the first three scripts to a specific task, so we
-    // need to make sure there's enough memory for at least those.
-    const serverMaxRam = ns.getServerMaxRam(hostname);
-    const scriptRam = ns.getScriptRam(script);
-    const initialScriptsRam = scriptRam * 3;
-
-    // Special case for servers with less than 16GB RAM
-    if (serverMaxRam < 4 && !ns.isRunning(script2gb, hostname)) {
-        // 2GB servers get their own script
-        await ns.scp(script2gb, "home", hostname);
-        ns.exec(script2gb, hostname);
-
-        return;
-    } else if (
-        serverMaxRam < initialScriptsRam &&
-        !ns.isRunning(script, hostname)
-    ) {
-        // Only one or two script instances can fit, so just fill up the threads
-        // and have it hack
-        const threads = Math.max(Math.floor(serverMaxRam / scriptRam), 1);
-        await ns.scp(script, "home", hostname);
-        ns.exec(script, hostname, threads, "hack");
-
-        return;
-    }
-
-    await ns.scp(script, "home", hostname);
-
-    // Make sure we don't clog up the server with hundreds of processes
-    const maxProcesses = 99;
-    let threads = Math.max(
-        Math.ceil(serverMaxRam / scriptRam / maxProcesses),
-        1
-    );
-
-    // Dedicate the first three scripts to a specific task
-    ns.exec(script, hostname, threads, "hack");
-    ns.exec(script, hostname, threads, "weaken");
-    ns.exec(script, hostname, threads, "grow");
-
-    let serverUsedRam = ns.getServerUsedRam(hostname);
-    let serverRam = serverMaxRam - serverUsedRam;
-
-    let scriptCount = 0;
-    while (serverRam > scriptRam) {
-        /**
-         * Need to check for failed exec due to out of RAM to prevent infinite
-         * loop. Usually happens on the last instance where there's still
-         * available RAM but not enough for the full number of threads.
-         */
-        let processId = ns.exec(script, hostname, threads, scriptCount);
-        while (processId == 0) {
-            threads--;
-            processId = ns.exec(script, hostname, threads, scriptCount);
-        }
-
-        scriptCount++;
-        serverUsedRam = ns.getServerUsedRam(hostname);
-        serverRam = serverMaxRam - serverUsedRam;
-    }
 }
 
 /**
