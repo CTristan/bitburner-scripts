@@ -174,6 +174,7 @@ async function upgradeServers(
                 `Replaced server ${server} with new server with ${ram}GB memory.`
             );
 
+            availableFunds -= serverCost;
             totalCost += serverCost;
         }
     }
@@ -213,27 +214,27 @@ async function upgradeHacknet(
             if (cost <= availableFunds) {
                 ns.hacknet.upgradeLevel(i, 1);
 
+                availableFunds -= cost;
                 totalCost += cost;
                 ns.print(`Upgraded a hacknet node's level for $${cost}`);
-                break;
             }
 
             cost = ns.hacknet.getRamUpgradeCost(i, 1);
             if (cost <= availableFunds) {
                 ns.hacknet.upgradeRam(i, 1);
 
+                availableFunds -= cost;
                 totalCost += cost;
                 ns.print(`Upgraded a hacknet node's RAM for $${cost}`);
-                break;
             }
 
             cost = ns.hacknet.getCoreUpgradeCost(i, 1);
             if (cost <= availableFunds) {
                 ns.hacknet.upgradeCore(i, 1);
 
+                availableFunds -= cost;
                 totalCost += cost;
                 ns.print(`Upgraded a hacknet node's cores for $${cost}`);
-                break;
             }
         }
     }
