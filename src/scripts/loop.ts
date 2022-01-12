@@ -11,6 +11,8 @@ export async function main(ns: NS): Promise<void> {
     const hackOnly = ns.args[0] == "hack";
     disableLogs(ns);
 
+    // Infinite loops need to be run sequentially
+    /* eslint-disable no-await-in-loop */
     if (weakenOnly) {
         for (;;) {
             await weakenServers(ns);
@@ -57,6 +59,7 @@ export async function main(ns: NS): Promise<void> {
             }
         }
     }
+    /* eslint-enable no-await-in-loop */
 }
 
 /**

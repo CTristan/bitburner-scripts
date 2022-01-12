@@ -1,5 +1,25 @@
 import { NS, ProcessInfo } from "@ns";
 
+const getHash = (input: string): number => {
+    let hash = 0;
+    let i;
+    let chr;
+
+    if (input.length === 0) return hash;
+
+    for (i = 0; i < input.length; i++) {
+        chr = input.charCodeAt(i);
+        hash = (hash << 5) - hash + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+
+    return hash;
+};
+
+interface IHashes {
+    [key: string]: number;
+}
+
 export async function main(ns: NS): Promise<void> {
     const hashes: Record<string,number> = {}
 
@@ -9,6 +29,8 @@ export async function main(ns: NS): Promise<void> {
         hashes[file] = getHash(contents);
     }
 
+    // Infinite loop must be run sequentially
+    /* eslint-disable no-await-in-loop */
     for (;;) {
         const files = ns.ls("home", ".js");
 
@@ -49,20 +71,5 @@ export async function main(ns: NS): Promise<void> {
 
         await ns.sleep(1000);
     }
+    /* eslint-enable no-await-in-loop */
 }
-
-const getHash = (input: string): number => {
-    let hash = 0;
-    let i;
-    let chr;
-
-    if (input.length === 0) return hash;
-
-    for (i = 0; i < input.length; i++) {
-        chr = input.charCodeAt(i);
-        hash = (hash << 5) - hash + chr;
-        hash |= 0; // Convert to 32bit integer
-    }
-
-    return hash;
-};

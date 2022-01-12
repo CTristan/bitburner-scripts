@@ -32,6 +32,8 @@ export async function main(ns: NS): Promise<void> {
     // Make sure we're using the most threads available
     restartWithMaxThreadsIfPossible(ns);
 
+    // Since this is an infinite loop, we want to run sequentially
+    /* eslint-disable no-await-in-loop */
     for (;;) {
         // Root any servers we can hack
         runScript(ns, "/scripts/worm.js");
@@ -104,6 +106,7 @@ export async function main(ns: NS): Promise<void> {
             await ns.sleep(1000);
         }
     }
+    /* eslint-enable no-await-in-loop */
 }
 
 function disableLogs(ns: NS): void {

@@ -27,6 +27,11 @@ export async function main(ns: NS): Promise<void> {
         });
     }
 
+    const crimeToCommit = {
+        name: "",
+        time: 0,
+    };
+
     for (const crime of crimes) {
         // Lethal crimes are a special case and we want to max those out first
         const numKills = ns.getPlayer().numPeopleKilled;
@@ -37,8 +42,14 @@ export async function main(ns: NS): Promise<void> {
             (crime.chance < 1 && crime.chance >= 0.5) ||
             shouldCommitLethalCrime
         ) {
-            ns.commitCrime(crime.name);
-            await ns.sleep(crime.time * 1000);
+            crimeToCommit.name = crime.name;
+            crimeToCommit.time = crime.time;
+            break;
         }
+    }
+
+    if (crimeToCommit.name != "") {
+        ns.commitCrime(crimeToCommit.name);
+        await ns.sleep(crimeToCommit.time * 1000);
     }
 }

@@ -59,7 +59,7 @@ export async function main(ns: NS): Promise<void> {
     for (const key in Factions) {
         const faction = Factions[key];
         while (ns.purchaseAugmentation(faction.name, alwaysAvailableAug)) {
-            await ns.sleep(1000);
+            // Purchase successful, do it again
         }
     }
 }

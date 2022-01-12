@@ -29,7 +29,6 @@ export async function main(ns: NS): Promise<void> {
     stats = stats.sort((a, b) => a.level - b.level);
 
     // Get the stat once we've sorted our list
-    // eslint-disable-next-line one-var
     const stat = stats[0].name;
 
     // Get the crimes that raise this stat

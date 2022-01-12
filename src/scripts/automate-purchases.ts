@@ -23,6 +23,8 @@ export async function main(ns: NS): Promise<void> {
         ns.spawn("/scripts/automate-purchases.js");
     }
 
+    // Since this is an infinite loop, we want to run everything sequentially.
+    /* eslint-disable no-await-in-loop */
     for (;;) {
         // Get how much we've earned so far
         const serverMoneyEarned = getServerMoneyEarned(ns);
@@ -56,6 +58,7 @@ export async function main(ns: NS): Promise<void> {
 
         await ns.sleep(1000);
     }
+    /* eslint-enable no-await-in-loop */
 }
 
 /**
@@ -64,10 +67,14 @@ export async function main(ns: NS): Promise<void> {
  * @param {string[]} files The list of files to initialize.
  */
 async function initializeFiles(ns: NS, files: string[]): Promise<void> {
+    // Each file is independent so we can write to them asynchronously
+    const writeTasks = [];
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        await ns.write(file, 0, "w");
+        writeTasks.push(ns.write(file, 0, "w"));
     }
+
+    await Promise.all(writeTasks);
 }
 
 /**
@@ -149,6 +156,7 @@ async function upgradeServers(
     }
 
     const maxRam = ns.getPurchasedServerMaxRam();
+    let totalCost = 0;
     for (let i = 0; i < servers.length; i++) {
         const server = servers[i];
 
@@ -166,9 +174,13 @@ async function upgradeServers(
                 `Replaced server ${server} with new server with ${ram}GB memory.`
             );
 
-            await addCostToExpenses(ns, serverCost, expenseFile);
-            return true;
+            totalCost += serverCost;
         }
+    }
+
+    if (totalCost > 0) {
+        await addCostToExpenses(ns, totalCost, expenseFile);
+        return true;
     }
 
     return false;
@@ -189,42 +201,46 @@ async function upgradeHacknet(
     ns.print(`Using ${availableFunds} for Hacknet upgrades.`);
 
     const hacknetNodeCost = ns.hacknet.getPurchaseNodeCost();
+    let totalCost = 0;
     if (hacknetNodeCost <= availableFunds) {
         ns.hacknet.purchaseNode();
-
-        await addCostToExpenses(ns, hacknetNodeCost, expenseFile);
+        totalCost += hacknetNodeCost;
         ns.print(`Purchased a new Hacknet node for $${hacknetNodeCost}.`);
-        return true;
     } else {
         const numNodes = ns.hacknet.numNodes();
         for (let i = 0; i < numNodes; i++) {
-            const levelCost = ns.hacknet.getLevelUpgradeCost(i, 1);
-            if (levelCost <= availableFunds) {
+            let cost = ns.hacknet.getLevelUpgradeCost(i, 1);
+            if (cost <= availableFunds) {
                 ns.hacknet.upgradeLevel(i, 1);
 
-                await addCostToExpenses(ns, levelCost, expenseFile);
-                ns.print(`Upgraded a hacknet node's level for $${levelCost}`);
-                return true;
+                totalCost += cost;
+                ns.print(`Upgraded a hacknet node's level for $${cost}`);
+                break;
             }
 
-            const ramCost = ns.hacknet.getRamUpgradeCost(i, 1);
-            if (ramCost <= availableFunds) {
+            cost = ns.hacknet.getRamUpgradeCost(i, 1);
+            if (cost <= availableFunds) {
                 ns.hacknet.upgradeRam(i, 1);
 
-                await addCostToExpenses(ns, ramCost, expenseFile);
-                ns.print(`Upgraded a hacknet node's RAM for $${ramCost}`);
-                return true;
+                totalCost += cost;
+                ns.print(`Upgraded a hacknet node's RAM for $${cost}`);
+                break;
             }
 
-            const coreCost = ns.hacknet.getCoreUpgradeCost(i, 1);
-            if (coreCost <= availableFunds) {
+            cost = ns.hacknet.getCoreUpgradeCost(i, 1);
+            if (cost <= availableFunds) {
                 ns.hacknet.upgradeCore(i, 1);
 
-                await addCostToExpenses(ns, coreCost, expenseFile);
-                ns.print(`Upgraded a hacknet node's cores for $${coreCost}`);
-                return true;
+                totalCost += cost;
+                ns.print(`Upgraded a hacknet node's cores for $${cost}`);
+                break;
             }
         }
+    }
+
+    if (totalCost > 0) {
+        await addCostToExpenses(ns, totalCost, expenseFile);
+        return true;
     }
 
     return false;

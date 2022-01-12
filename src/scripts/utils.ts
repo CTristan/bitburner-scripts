@@ -73,6 +73,7 @@ export async function forceRunScript(
         let scriptStarted = runScript(ns, script, server, ...args);
         while (!scriptStarted) {
             ns.print(`Waiting to start ${script}`);
+            // eslint-disable-next-line no-await-in-loop
             await ns.sleep(1000);
             scriptStarted = runScript(ns, script, server, ...args);
         }

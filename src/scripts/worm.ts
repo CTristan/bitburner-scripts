@@ -26,6 +26,9 @@ export async function main(ns: NS): Promise<void> {
         }
 
         ns.print("About to infect " + server);
+
+        // Script number must be sequentially assigned
+        // eslint-disable-next-line no-await-in-loop
         scriptNumber = await hackServer(ns, server, scripts, scriptNumber);
     }
 }
@@ -56,11 +59,14 @@ export async function hackServer(
     const ramMult = server.hostname === "home" ? 0.7 : 1;
     const serverMaxRam = ns.getServerMaxRam(hostname) * ramMult;
 
+    const scpTasks = [];
     let scriptsRam = 0;
     for (const script of scripts) {
         scriptsRam += ns.getScriptRam(script);
-        await ns.scp(script, "home", hostname);
+        scpTasks.push(ns.scp(script, "home", hostname));
     }
+    await Promise.all(scpTasks);
+
     if (serverMaxRam < scriptsRam) return scriptNumber;
 
     // Make sure we don't clog up the server with hundreds of processes

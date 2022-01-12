@@ -7,6 +7,8 @@ export async function main(ns: NS): Promise<void> {
     // of creating them.
     const buyPrograms = ns.args[0];
 
+    // Infinite loop so we need to run sequentially
+    /* eslint-disable no-await-in-loop */
     for (;;) {
         await forceRunScript(ns, "/scripts/singularity/upgrade-home-ram.js");
         await forceRunScript(ns, "/scripts/singularity/upgrade-home-cores.js");
@@ -33,4 +35,5 @@ export async function main(ns: NS): Promise<void> {
 
         await ns.sleep(1000);
     }
+    /* eslint-enable no-await-in-loop */
 }

@@ -30,36 +30,30 @@ export async function main(ns: NS): Promise<void> {
     companies = companies.sort((a, b) => b.salaryMult - a.salaryMult);
     companies = companies.sort((a, b) => a.favor - b.favor);
 
+    let companyToWorkFor = "";
     for (const company of companies) {
         if (
             ns.getCompanyRep(company.name) < company.repReq &&
             applyToCompany(ns, company.name, company.position) &&
             ns.workForCompany(company.name, ns.isFocused())
         ) {
-            // Work until we meet the reputation requirement or start working
-            // on something else
-            while (
-                ns.getCompanyRep(company.name) < company.repReq &&
-                isWorking(ns, workType)
-            ) {
-                applyToCompany(ns, company.name, company.position);
-                ns.workForCompany(company.name, ns.isFocused());
+            companyToWorkFor = company.name;
+            break;
+        }
+    }
 
-                /**
-                 * Sleep until we gain 4000 rep (each position upgrade is
-                 * divisible by 4000) taking the early cancel penalty into
-                 * account, or if we start working on something else
-                 */
-                while (
-                    ns.getPlayer().workRepGained < 4000 * 2 &&
-                    isWorking(ns, workType)
-                ) {
-                    await ns.sleep(1000);
-                }
-            }
-
-            // We got our rep so let's exit so we don't interrupt anything
-            ns.exit();
+    if (companyToWorkFor != "") {
+        /**
+         * Sleep until we gain 4000 rep (each position upgrade is divisible by
+         * 4000) taking the early cancel penalty into account, or if we start
+         * working on something else
+         */
+        while (
+            ns.getPlayer().workRepGained < 4000 * 2 &&
+            isWorking(ns, workType)
+        ) {
+            // eslint-disable-next-line no-await-in-loop
+            await ns.sleep(1000);
         }
     }
 }

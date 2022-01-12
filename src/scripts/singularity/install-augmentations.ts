@@ -11,8 +11,8 @@ const Factions = Constants.Factions;
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    await checkFactionFavor(ns);
-    await checkPurchasedFactionAugs(ns);
+    if (checkFactionFavor(ns) || checkPurchasedFactionAugs(ns))
+        await installAugmentations(ns);
 }
 
 /**
@@ -21,7 +21,7 @@ export async function main(ns: NS): Promise<void> {
  *
  * @param {NS} ns
  */
-async function checkFactionFavor(ns: NS): Promise<void> {
+function checkFactionFavor(ns: NS): boolean {
     for (const key in Factions) {
         const faction = Factions[key];
         const currentFavor = ns.getFactionFavor(faction.name);
@@ -30,10 +30,12 @@ async function checkFactionFavor(ns: NS): Promise<void> {
             const favorGain = ns.getFactionFavorGain(faction.name);
 
             if (currentFavor + favorGain >= 150) {
-                await installAugmentations(ns);
+                return true;
             }
         }
     }
+
+    return false;
 }
 
 /**
@@ -42,7 +44,7 @@ async function checkFactionFavor(ns: NS): Promise<void> {
  *
  * @param ns
  */
-async function checkPurchasedFactionAugs(ns: NS): Promise<void> {
+function checkPurchasedFactionAugs(ns: NS): boolean {
     const ownedAugs = ns.getOwnedAugmentations(true);
     const installedAugs = ns.getOwnedAugmentations();
     const purchasedAugs = ownedAugs.filter(
@@ -66,11 +68,13 @@ async function checkPurchasedFactionAugs(ns: NS): Promise<void> {
                 if (factionAugs.includes(purchasedAug)) {
                     // If we have a purchased augmentation from the faction and they have
                     // no more remaining then we want to install them
-                    await installAugmentations(ns);
+                    return true;
                 }
             }
         }
     }
+
+    return false;
 }
 
 /**

@@ -1,4 +1,3 @@
-/* eslint-disable sort-keys */
 import { ICities } from "/interfaces/icities.js";
 import { ICompanies } from "/interfaces/icompanies.js";
 import { ICrimes } from "/interfaces/icrimes.js";
@@ -389,4 +388,3 @@ export const WorkTypes: IWorkTypes = {
     Factions: "Working for Faction",
     StudyClass: "Studying or Taking a class at university",
 };
-/* eslint-enable sort-keys */

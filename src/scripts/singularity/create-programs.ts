@@ -20,27 +20,21 @@ export async function main(ns: NS): Promise<void> {
     // ones done first
     programs = programs.sort((a, b) => a.hackLevelReq - b.hackLevelReq);
 
+    let creatingProgram = false;
     for (const program of programs) {
         if (
             !ns.fileExists(program.name) &&
             ns.getHackingLevel() >= program.hackLevelReq &&
             ns.createProgram(program.name)
         ) {
-            // Keep checking that we haven't bought the program since starting to
-            // create the program
-            while (!ns.fileExists(program.name) && isWorking(ns, workType)) {
-                await ns.sleep(1000);
-            }
-
-            // We're done writing the program, let's exit so we don't
-            // interrupt anything else
-            ns.exit();
+            creatingProgram = true;
+            break;
         }
     }
 
     // If we have no programs left to create but are still working on one,
     // let's stop that
-    if (isWorking(ns, workType)) {
+    if (!creatingProgram && isWorking(ns, workType)) {
         ns.stopAction();
     }
 }

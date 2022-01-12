@@ -42,33 +42,25 @@ export async function main(ns: NS): Promise<void> {
     factions = factions.sort((a, b) => a.repReq - b.repReq);
     factions = factions.sort((a, b) => a.favor - b.favor);
 
+    const factionToWorkFor = { name: "", repReq: 0 };
     for (const faction of factions) {
         // If we don't have any faction rep, that means we aren't a member yet
         if (
             ns.getFactionRep(faction.name) > 0 &&
             ns.getFactionRep(faction.name) < faction.repReq
         ) {
-            do {
-                // Keep working until we've either hit our desired rep or
-                // started other work.
-                await workForFaction(ns, faction.name, faction.repReq);
-            } while (
-                ns.getFactionRep(faction.name) < faction.repReq &&
-                isWorking(ns, workType)
-            );
-
-            // We're done working for this faction now
-            if (isWorking(ns, workType)) {
-                ns.stopAction();
-            }
-
-            ns.exit();
+            factionToWorkFor.name = faction.name;
+            factionToWorkFor.repReq = faction.repReq;
+            break;
         }
     }
 
-    // If we're still working on a faction, we can stop now
-    if (isWorking(ns, workType)) {
-        ns.stopAction();
+    if (factionToWorkFor.name != "") {
+        await workForFaction(
+            ns,
+            factionToWorkFor.name,
+            factionToWorkFor.repReq
+        );
     }
 }
 
@@ -100,6 +92,7 @@ async function workForFaction(
 
         // Sleep until we gain 1000 rep or start working on something else
         while (ns.getPlayer().workRepGained < 1000 && isWorking(ns, workType)) {
+            // eslint-disable-next-line no-await-in-loop
             await ns.sleep(1000);
         }
     }

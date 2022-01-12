@@ -24,9 +24,11 @@ export async function main(ns: NS): Promise<void> {
         WorkTypes.StudyClass,
     ];
 
-    // As we work through the priority list, we'll add them to a whitelist of
+    // As we work through the work list, we'll add them to a priority list of
     // work types that we don't want to interrupt.
-    const whitelist = [];
+    // Needs to run sequentially
+    /* eslint-disable no-await-in-loop */
+    const priorityList = [];
     for (let i = 0; i < prioritizedWork.length; i++) {
         const workType = prioritizedWork[i];
 
@@ -35,35 +37,35 @@ export async function main(ns: NS): Promise<void> {
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/create-programs.js",
-                    ...whitelist
+                    ...priorityList
                 );
                 break;
             case WorkTypes.Company:
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/work-companies.js",
-                    ...whitelist
+                    ...priorityList
                 );
                 break;
             case WorkTypes.Crime:
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/commit-crime.js",
-                    ...whitelist
+                    ...priorityList
                 );
                 break;
             case WorkTypes.Factions:
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/work-factions.js",
-                    ...whitelist
+                    ...priorityList
                 );
                 break;
             case WorkTypes.StudyClass:
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/raise-lowest-stat.js",
-                    ...whitelist
+                    ...priorityList
                 );
                 break;
             default:
@@ -73,9 +75,10 @@ export async function main(ns: NS): Promise<void> {
                 );
         }
 
-        whitelist.push(workType);
-        console.log(whitelist);
+        priorityList.push(workType);
+        console.log(priorityList);
     }
+    /* eslint-enable no-await-in-loop */
 }
 
 /**
@@ -83,16 +86,16 @@ export async function main(ns: NS): Promise<void> {
  *
  * @param ns NS
  * @param script The script that will perform the work.
- * @param whitelist Whitelist of work types that we don't want to interrupt.
+ * @param priorityList List of work types that we don't want to interrupt.
  */
 export async function attemptToPerformWork(
     ns: NS,
     script: string,
-    ...whitelist: Array<string>
+    ...priorityList: Array<string>
 ): Promise<void> {
-    // Check if we are currently working on a whitelisted work type
+    // Check if we are currently working on a priorityListed work type
     const currentWorkType = ns.getPlayer().workType;
-    if (whitelist.indexOf(currentWorkType) > -1) {
+    if (priorityList.indexOf(currentWorkType) > -1) {
         ns.exit();
     }
 
