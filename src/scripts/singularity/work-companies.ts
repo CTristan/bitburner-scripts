@@ -3,8 +3,8 @@ import * as Constants from "/classes/constants.js";
 import { IPosition } from "/interfaces/iposition.js";
 import { isWorking } from "/scripts/utils.js";
 
-const Companies = Constants.Companies,
-    workType = Constants.WorkTypes.Company;
+const Companies = Constants.Companies;
+const workType = Constants.WorkTypes.Company;
 
 /**
  * Works for the most profitable company we qualify for.

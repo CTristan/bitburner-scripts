@@ -10,9 +10,10 @@ export async function main(ns: NS): Promise<void> {
     disableLogs(ns);
 
     // Initialize our files on first run if needed
-    const serverIncomeFile = "/data/income-servers.txt",
-        serverExpenseFile = "/data/expenses-servers.txt",
-        hacknetExpenseFile = "/data/expenses-hacknet.txt";
+    const serverIncomeFile = "/data/income-servers.txt";
+    const serverExpenseFile = "/data/expenses-servers.txt";
+    const hacknetExpenseFile = "/data/expenses-hacknet.txt";
+
     if (firstRun) {
         await initializeFiles(ns, [
             serverIncomeFile,
@@ -24,11 +25,12 @@ export async function main(ns: NS): Promise<void> {
 
     for (;;) {
         // Get how much we've earned so far
-        const serverMoneyEarned = getServerMoneyEarned(ns),
-            hacknetMoneyEarned = getHacknetMoneyEarned(ns),
-            // Get how much we've spent so far
-            serverExpenses = parseFloat(await ns.read(serverExpenseFile)),
-            hacknetExpenses = parseFloat(await ns.read(hacknetExpenseFile));
+        const serverMoneyEarned = getServerMoneyEarned(ns);
+        const hacknetMoneyEarned = getHacknetMoneyEarned(ns);
+
+        // Get how much we've spent so far
+        const serverExpenses = parseFloat(await ns.read(serverExpenseFile));
+        const hacknetExpenses = parseFloat(await ns.read(hacknetExpenseFile));
 
         // We'll only make available however much the purchases have paid for
         let serverProfits = serverMoneyEarned - serverExpenses;
@@ -92,9 +94,9 @@ async function addCostToExpenses(
  * @return Amount of money generated.
  */
 function getServerMoneyEarned(ns: NS): number {
-    const player = ns.getPlayer(),
-        playtime = player.playtimeSinceLastAug,
-        scriptIncome = ns.getScriptIncome()[1];
+    const player = ns.getPlayer();
+    const playtime = player.playtimeSinceLastAug;
+    const scriptIncome = ns.getScriptIncome()[1];
 
     return scriptIncome * playtime;
 }

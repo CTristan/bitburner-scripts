@@ -17,8 +17,9 @@ export async function main(ns: NS): Promise<void> {
     let favor = Number.MAX_VALUE;
 
     for (const key in Constants.Cities) {
-        const cityName = Constants.Cities[key],
-            cityFavor = ns.getFactionFavor(cityName);
+        const cityName = Constants.Cities[key];
+        const cityFavor = ns.getFactionFavor(cityName);
+
         if (cityFavor < favor) {
             city = cityName;
             favor = cityFavor;

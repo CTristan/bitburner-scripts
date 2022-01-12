@@ -2,8 +2,8 @@ import { NS } from "@ns";
 import * as Constants from "/classes/constants.js";
 import { isWorking } from "/scripts/utils.js";
 
-const Factions = Constants.Factions,
-    workType = Constants.WorkTypes.Factions;
+const Factions = Constants.Factions;
+const workType = Constants.WorkTypes.Factions;
 
 /**
  * Work for a faction that we don't yet have enough rep with for all
@@ -16,12 +16,13 @@ export async function main(ns: NS): Promise<void> {
 
     let factions = [];
     for (const key in Factions) {
-        const faction = Factions[key],
-            // We want to get the required rep based off of the augmentations
-            // that we don't own already
-            augs = ns
-                .getAugmentationsFromFaction(faction.name)
-                .filter((aug) => !ownedAugs.includes(aug));
+        const faction = Factions[key];
+
+        // We want to get the required rep based off of the augmentations
+        // that we don't own already
+        const augs = ns
+            .getAugmentationsFromFaction(faction.name)
+            .filter((aug) => !ownedAugs.includes(aug));
 
         let highestRepReq = 0;
         for (let j = 0; j < augs.length; j++) {
@@ -112,16 +113,19 @@ function donateToFaction(ns: NS, faction: string, repReq: number): number {
     let rep = ns.getFactionRep(faction);
 
     if (favor >= 150) {
-        const repDifference = repReq - rep,
-            repMultiplier = favor / 100,
-            /**
-             * Formula for reputation gain:
-             * reputation = donationAmount * reputationMultiplier / 10e6
-             *
-             * Formula for donation amount:
-             * donationAmount = reputation * 10e6 / reputationMultiplier
-             */
-            donationAmount = Math.ceil((repDifference * 10e6) / repMultiplier);
+        const repDifference = repReq - rep;
+        const repMultiplier = favor / 100;
+
+        /**
+         * Formula for reputation gain:
+         * reputation = donationAmount * reputationMultiplier / 10e6
+         *
+         * Formula for donation amount:
+         * donationAmount = reputation * 10e6 / reputationMultiplier
+         */
+        const donationAmount = Math.ceil(
+            (repDifference * 10e6) / repMultiplier
+        );
         ns.donateToFaction(faction, donationAmount);
 
         rep = ns.getFactionRep(faction);

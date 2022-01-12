@@ -23,8 +23,8 @@ export async function main(ns: NS): Promise<void> {
  */
 async function checkFactionFavor(ns: NS): Promise<void> {
     for (const key in Factions) {
-        const faction = Factions[key],
-            currentFavor = ns.getFactionFavor(faction.name);
+        const faction = Factions[key];
+        const currentFavor = ns.getFactionFavor(faction.name);
 
         if (currentFavor < 150) {
             const favorGain = ns.getFactionFavorGain(faction.name);
@@ -43,16 +43,18 @@ async function checkFactionFavor(ns: NS): Promise<void> {
  * @param ns
  */
 async function checkPurchasedFactionAugs(ns: NS): Promise<void> {
-    const ownedAugs = ns.getOwnedAugmentations(true),
-        installedAugs = ns.getOwnedAugmentations(),
-        purchasedAugs = ownedAugs.filter((aug) => !installedAugs.includes(aug));
+    const ownedAugs = ns.getOwnedAugmentations(true);
+    const installedAugs = ns.getOwnedAugmentations();
+    const purchasedAugs = ownedAugs.filter(
+        (aug) => !installedAugs.includes(aug)
+    );
 
     for (const key in Factions) {
-        const faction = Factions[key],
-            factionAugs = ns.getAugmentationsFromFaction(faction.name),
-            remainingFactionAugs = factionAugs.filter(
-                (aug) => !ownedAugs.includes(aug)
-            );
+        const faction = Factions[key];
+        const factionAugs = ns.getAugmentationsFromFaction(faction.name);
+        const remainingFactionAugs = factionAugs.filter(
+            (aug) => !ownedAugs.includes(aug)
+        );
 
         /**
          * Check if there are no more remaining augmentations and there is at

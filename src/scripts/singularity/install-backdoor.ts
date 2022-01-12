@@ -7,8 +7,8 @@ import { connectTo } from "/scripts/utils.js";
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    const hostname = ns.args[0].toString(),
-        server = ns.getServer(hostname);
+    const hostname = ns.args[0].toString();
+    const server = ns.getServer(hostname);
 
     if (!server.backdoorInstalled) {
         connectTo(ns, hostname);

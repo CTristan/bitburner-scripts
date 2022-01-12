@@ -15,8 +15,8 @@ export async function main(ns: NS): Promise<void> {
     const alwaysAvailableAug = "NeuroFlux Governor";
     let ownedAugs = ns.getOwnedAugmentations(true);
     for (const key in Factions) {
-        const faction = Factions[key],
-            factionAugs = ns.getAugmentationsFromFaction(faction.name);
+        const faction = Factions[key];
+        const factionAugs = ns.getAugmentationsFromFaction(faction.name);
 
         // Build a list of augs for the faction that we don't already own.
         let augs = [];
@@ -58,10 +58,10 @@ export async function main(ns: NS): Promise<void> {
             } else {
                 // Special case where the most expensive augmentation requires a
                 // lower tier version
-                const rep = ns.getFactionRep(faction.name),
-                    repReq = ns.getAugmentationRepReq(augName),
-                    augPrice = ns.getAugmentationPrice(augName),
-                    availableMoney = ns.getServerMoneyAvailable("home");
+                const rep = ns.getFactionRep(faction.name);
+                const repReq = ns.getAugmentationRepReq(augName);
+                const augPrice = ns.getAugmentationPrice(augName);
+                const availableMoney = ns.getServerMoneyAvailable("home");
 
                 if (rep >= repReq && availableMoney >= augPrice) {
                     ns.print(`Need to purchase a lower version of  ${augName}`);

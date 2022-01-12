@@ -12,8 +12,8 @@ const Factions = Constants.Factions;
 export async function main(ns: NS): Promise<void> {
     let ownedAugs = ns.getOwnedAugmentations(true);
     for (const key in Factions) {
-        const faction = Factions[key],
-            factionAugs = ns.getAugmentationsFromFaction(faction.name);
+        const faction = Factions[key];
+        const factionAugs = ns.getAugmentationsFromFaction(faction.name);
 
         // Build a list of augs for the faction that we don't already own.
         let augs = [];

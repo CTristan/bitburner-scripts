@@ -11,9 +11,10 @@ export async function main(ns: NS): Promise<void> {
     disableLogs(ns);
 
     // The script name to infect every server with.
-    const scripts = ["/scripts/loop.js"],
-        // Infect all servers, including purchased servers.
-        servers = scanForAllServers(ns, true);
+    const scripts = ["/scripts/loop.js"];
+
+    // Infect all servers, including purchased servers.
+    const servers = scanForAllServers(ns, true);
 
     let scriptNumber = 0;
     for (let i = 0; i < servers.length; i++) {
@@ -52,8 +53,9 @@ export async function hackServer(
 
     // We need to make sure there's enough memory, so we'll skip any servers
     // that don't have enough RAM. We'll only use 70% of our home server.
-    const ramMult = server.hostname === "home" ? 0.7 : 1,
-        serverMaxRam = ns.getServerMaxRam(hostname) * ramMult;
+    const ramMult = server.hostname === "home" ? 0.7 : 1;
+    const serverMaxRam = ns.getServerMaxRam(hostname) * ramMult;
+
     let scriptsRam = 0;
     for (const script of scripts) {
         scriptsRam += ns.getScriptRam(script);

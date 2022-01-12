@@ -57,8 +57,8 @@ export async function forceRunScript(
 
     // If the script would use more than 20% of the server's max RAM, let's
     // skip it since it may never run
-    const serverMaxRam = ns.getServerMaxRam(server),
-        scriptRam = ns.getScriptRam(script);
+    const serverMaxRam = ns.getServerMaxRam(server);
+    const scriptRam = ns.getScriptRam(script);
 
     if (scriptRam > serverMaxRam * 0.2) {
         ns.print(
@@ -88,9 +88,9 @@ export async function forceRunScript(
  * @return The number of threads currently being used by this script.
  */
 export function getThreadCount(ns: NS): number {
-    const serverName = ns.getHostname(),
-        scriptName = ns.getScriptName(),
-        runningScript = ns.getRunningScript(scriptName, serverName);
+    const serverName = ns.getHostname();
+    const scriptName = ns.getScriptName();
+    const runningScript = ns.getRunningScript(scriptName, serverName);
 
     return runningScript.threads;
 }
@@ -115,12 +115,14 @@ export function isWorking(ns: NS, workType: string): boolean {
  * @return The number of threads being used currently if we didn't restart.
  * **/
 export function restartWithMaxThreadsIfPossible(ns: NS): number {
-    const serverName = ns.getHostname(),
-        scriptName = ns.getScriptName(),
-        maxRam = ns.getServerMaxRam(serverName),
-        usedRam = ns.getServerUsedRam(serverName),
-        availableRam = maxRam - usedRam,
-        memCost = ns.getScriptRam(scriptName);
+    const serverName = ns.getHostname();
+    const scriptName = ns.getScriptName();
+
+    const maxRam = ns.getServerMaxRam(serverName);
+    const usedRam = ns.getServerUsedRam(serverName);
+    const availableRam = maxRam - usedRam;
+
+    const memCost = ns.getScriptRam(scriptName);
     let threads = Math.floor(availableRam / memCost);
 
     // On our home server we need to reserve some threads for other scripts we might want to run

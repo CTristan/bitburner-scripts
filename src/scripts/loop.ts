@@ -6,9 +6,9 @@ import { scanForAllServers } from "/scripts/utils.js";
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    const weakenOnly = ns.args[0] == "weaken",
-        growOnly = ns.args[0] == "grow",
-        hackOnly = ns.args[0] == "hack";
+    const weakenOnly = ns.args[0] == "weaken";
+    const growOnly = ns.args[0] == "grow";
+    const hackOnly = ns.args[0] == "hack";
     disableLogs(ns);
 
     if (weakenOnly) {
@@ -31,9 +31,7 @@ export async function main(ns: NS): Promise<void> {
 
         for (;;) {
             // No args, so we'll loop HWGW.
-            const server = await findBestServer(ns),
-                minSecurityLevel = ns.getServerMinSecurityLevel(server),
-                maxMoney = ns.getServerMaxMoney(server);
+            const server = await findBestServer(ns);
 
             // Because multiple scripts might attack the same server, we'll have sanity checks at each step.
             let moneyAvailable = ns.getServerMoneyAvailable(server);
@@ -41,11 +39,13 @@ export async function main(ns: NS): Promise<void> {
                 await ns.hack(server);
             }
 
+            const minSecurityLevel = ns.getServerMinSecurityLevel(server);
             let securityLevel = ns.getServerSecurityLevel(server);
             if (securityLevel > minSecurityLevel) {
                 await ns.weaken(server);
             }
 
+            const maxMoney = ns.getServerMaxMoney(server);
             moneyAvailable = ns.getServerMoneyAvailable(server);
             if (moneyAvailable < maxMoney) {
                 await ns.grow(server);
@@ -67,20 +67,22 @@ export async function main(ns: NS): Promise<void> {
 async function findBestServer(ns: NS): Promise<string> {
     // Get all of the reachable servers
     ns.print("About to scan for all servers.");
-    const servers = scanForAllServers(ns),
-        bestServer = {
-            moneyPerSecond: 0,
-            name: "",
-        };
+    const servers = scanForAllServers(ns);
+    const bestServer = {
+        moneyPerSecond: 0,
+        name: "",
+    };
 
     for (let i = 0; i < servers.length; i++) {
         const server = servers[i];
+
         // Make sure we can actually hack it
         if (ns.hasRootAccess(server)) {
             // Get the money/second for hacking the server
-            const serverMoney = ns.getServerMoneyAvailable(server),
-                timeToHack = ns.getHackTime(server),
-                moneyPerSecond = serverMoney / timeToHack;
+            const serverMoney = ns.getServerMoneyAvailable(server);
+            const timeToHack = ns.getHackTime(server);
+            const moneyPerSecond = serverMoney / timeToHack;
+
             if (moneyPerSecond > bestServer.moneyPerSecond) {
                 ns.print(
                     "New best server: " +
@@ -106,11 +108,11 @@ async function findBestServer(ns: NS): Promise<string> {
 async function weakenServers(ns: NS): Promise<void> {
     // Get all of the reachable servers
     ns.print("About to scan for all servers.");
-    const servers = scanForAllServers(ns),
-        strongestServer = {
-            name: "",
-            securityLevel: 0,
-        };
+    const servers = scanForAllServers(ns);
+    const strongestServer = {
+        name: "",
+        securityLevel: 0,
+    };
 
     // Start at 1 to skip the first server, which is always home
     for (let i = 1; i < servers.length; i++) {
@@ -154,11 +156,11 @@ async function weakenServers(ns: NS): Promise<void> {
 async function growServers(ns: NS): Promise<void> {
     // Get all of the reachable servers
     ns.print("About to scan for all servers.");
-    const servers = scanForAllServers(ns),
-        cheapestServer = {
-            money: 0,
-            name: "",
-        };
+    const servers = scanForAllServers(ns);
+    const cheapestServer = {
+        money: 0,
+        name: "",
+    };
 
     // Start at 1 to skip the first server, which is always home
     for (let i = 1; i < servers.length; i++) {

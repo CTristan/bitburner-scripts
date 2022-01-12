@@ -38,20 +38,21 @@ export async function main(ns: NS): Promise<void> {
 
         // Get all of the reachable servers
         ns.print("About to scan for all servers.");
-        const servers = scanForAllServers(ns, true),
-            bestServer = {
-                dollarsPerSecond: 0,
-                name: "",
-            };
+        const servers = scanForAllServers(ns, true);
+        const bestServer = {
+            dollarsPerSecond: 0,
+            name: "",
+        };
 
         for (let i = 0; i < servers.length; i++) {
             const server = servers[i];
 
             // Make sure we can actually hack it and we don't own it
             if (ns.hasRootAccess(server) && !isServerOwned(server)) {
-                const moneyAvailable = ns.getServerMoneyAvailable(server),
-                    hackTime = ns.getHackTime(server),
-                    dollarsPerSecond = moneyAvailable / hackTime;
+                const moneyAvailable = ns.getServerMoneyAvailable(server);
+                const hackTime = ns.getHackTime(server);
+                const dollarsPerSecond = moneyAvailable / hackTime;
+
                 if (dollarsPerSecond > bestServer.dollarsPerSecond) {
                     ns.print(
                         "New best server: " +
@@ -68,9 +69,7 @@ export async function main(ns: NS): Promise<void> {
 
         // Hack the best server, and if it fails weaken and try again
         if (bestServer.name != "") {
-            const server = bestServer.name,
-                minSecurityLevel = ns.getServerMinSecurityLevel(server),
-                maxMoney = ns.getServerMaxMoney(server);
+            const server = bestServer.name;
 
             // HWGW is the most profitable cycle.
             // Because multiple scripts might attack the same server, we'll have sanity checks at each step.
@@ -84,11 +83,13 @@ export async function main(ns: NS): Promise<void> {
                 }
             }
 
+            const minSecurityLevel = ns.getServerMinSecurityLevel(server);
             let securityLevel = ns.getServerSecurityLevel(server);
             if (securityLevel > minSecurityLevel) {
                 await ns.weaken(server);
             }
 
+            const maxMoney = ns.getServerMaxMoney(server);
             moneyAvailable = ns.getServerMoneyAvailable(server);
             if (moneyAvailable < maxMoney) {
                 await ns.grow(server);

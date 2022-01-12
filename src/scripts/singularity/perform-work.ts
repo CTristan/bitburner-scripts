@@ -15,18 +15,18 @@ import { forceRunScript } from "/scripts/utils.js";
  * @param ns
  */
 export async function main(ns: NS): Promise<void> {
-    const WorkTypes = Constants.WorkTypes,
-        prioritizedWork = [
-            WorkTypes.CreateProgram,
-            WorkTypes.Factions,
-            WorkTypes.Company,
-            WorkTypes.Crime,
-            WorkTypes.StudyClass,
-        ],
-        whitelist = [];
+    const WorkTypes = Constants.WorkTypes;
+    const prioritizedWork = [
+        WorkTypes.CreateProgram,
+        WorkTypes.Factions,
+        WorkTypes.Company,
+        WorkTypes.Crime,
+        WorkTypes.StudyClass,
+    ];
 
     // As we work through the priority list, we'll add them to a whitelist of
     // work types that we don't want to interrupt.
+    const whitelist = [];
     for (let i = 0; i < prioritizedWork.length; i++) {
         const workType = prioritizedWork[i];
 
