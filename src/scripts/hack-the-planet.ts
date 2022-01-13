@@ -2,7 +2,6 @@ import { NS } from "@ns";
 import {
     forceRunScript,
     isServerOwned,
-    restartWithMaxThreadsIfPossible,
     runScript,
     scanForAllServers,
 } from "/scripts/utils.js";
@@ -28,9 +27,6 @@ export async function main(ns: NS): Promise<void> {
         runScript(ns, "/scripts/start-singularity.js", "home", true);
         runScript(ns, "/scripts/singularity/travel-to-most-needed-city.js");
     }
-
-    // Make sure we're using the most threads available
-    restartWithMaxThreadsIfPossible(ns);
 
     // Since this is an infinite loop, we want to run sequentially
     /* eslint-disable no-await-in-loop */
@@ -79,10 +75,17 @@ export async function main(ns: NS): Promise<void> {
             if (moneyAvailable > 0) {
                 // Try to manually hack first if we have enough RAM for it
                 if (
-                    !forceRunScript(ns, "/scripts/singularity/manually-hack.js")
+                    await forceRunScript(
+                        ns,
+                        "/scripts/singularity/manually-hack.js",
+                        "home",
+                        server
+                    )
                 ) {
-                    await ns.hack(server);
+                    await ns.sleep(1000);
                 }
+
+                await ns.hack(server);
             }
 
             const minSecurityLevel = ns.getServerMinSecurityLevel(server);

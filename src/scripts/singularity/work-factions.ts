@@ -27,8 +27,8 @@ export async function main(ns: NS): Promise<void> {
             .filter((aug) => !ownedAugs.includes(aug));
 
         let highestRepReq = 0;
-        for (let j = 0; j < augs.length; j++) {
-            const repReq = ns.getAugmentationRepReq(augs[j]);
+        for (const aug of augs) {
+            const repReq = ns.getAugmentationRepReq(aug);
             highestRepReq = Math.max(highestRepReq, repReq);
         }
 

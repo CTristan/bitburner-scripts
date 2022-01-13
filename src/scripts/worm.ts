@@ -103,6 +103,9 @@ export async function hackServer(
         scriptNumber++;
         serverUsedRam = ns.getServerUsedRam(hostname);
         serverRam = serverMaxRam - serverUsedRam;
+
+        // Small sleep to prevent GUI freezing up
+        await ns.asleep(1);
     }
 
     return scriptNumber;
