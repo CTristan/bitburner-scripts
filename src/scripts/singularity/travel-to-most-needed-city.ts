@@ -1,5 +1,5 @@
-import { NS } from "@ns";
-import * as Constants from "/classes/constants.js";
+import { NS } from "@ns"
+import * as Constants from "/classes/constants.js"
 
 /**
  * Travels to the city with the least favor. Used after resets to make sure
@@ -13,41 +13,42 @@ import * as Constants from "/classes/constants.js";
  */
 export async function main(ns: NS): Promise<void> {
     // Find the city with the least favor
-    let city = "";
-    let favor = Number.MAX_VALUE;
+    let city = ""
+    let favor = Number.MAX_VALUE
 
     for (const key in Constants.Cities) {
-        const cityName = Constants.Cities[key];
-        const cityFavor = ns.getFactionFavor(cityName);
+        const cityName = Constants.Cities[key]
+        const cityFavor = ns.getFactionFavor(cityName)
 
         if (cityFavor < favor) {
-            city = cityName;
-            favor = cityFavor;
+            city = cityName
+            favor = cityFavor
         }
     }
 
     // Join all factions requiring a specific city
-    await joinAllCityFactions(ns, city);
+    await travelToCity(ns, city)
+    await joinAllCityFactions(ns, city)
 }
 
 function hasFactionRep(ns: NS, faction: string): boolean {
-    return ns.getFactionRep(faction) > 0;
+    return ns.getFactionRep(faction) > 0
 }
 
 function hasJoinedEnemyFaction(ns: NS, enemies: string[]): boolean {
-    let isInEnemyFaction = false;
+    let isInEnemyFaction = false
 
     ns.getPlayer().factions.forEach((faction) => {
         if (enemies.includes(faction)) {
-            isInEnemyFaction = true;
+            isInEnemyFaction = true
         }
-    });
+    })
 
-    return isInEnemyFaction;
+    return isInEnemyFaction
 }
 
 function isAlreadyInCity(ns: NS, city: string): boolean {
-    return ns.getPlayer().city === city;
+    return ns.getPlayer().city === city
 }
 
 /**
@@ -58,9 +59,9 @@ function isAlreadyInCity(ns: NS, city: string): boolean {
  * @param currentCity
  */
 async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
-    let factions = [];
+    let factions = []
     for (const key in Constants.Factions) {
-        const faction = Constants.Factions[key];
+        const faction = Constants.Factions[key]
 
         if (faction.cities.length > 0) {
             factions.push({
@@ -68,12 +69,12 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
                 enemies: faction.enemies,
                 favor: ns.getFactionFavor(faction.name),
                 name: faction.name,
-            });
+            })
         }
     }
 
     // Sort factions by least favor
-    factions = factions.sort((a, b) => a.favor - b.favor);
+    factions = factions.sort((a, b) => a.favor - b.favor)
 
     // Put the city factions first since they will have the least requirements
     factions = [
@@ -81,17 +82,17 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
         ...factions.filter(
             (faction) =>
                 faction.cities.includes(faction.name) &&
-                ns.getFactionRep(faction.name) > 0
+                ns.getPlayer().factions.includes(faction.name)
         ),
         // Then get the other city factions
         ...factions.filter(
             (faction) =>
                 faction.cities.includes(faction.name) &&
-                ns.getFactionRep(faction.name) <= 0
+                !ns.getPlayer().factions.includes(faction.name)
         ),
         // Finally get all of the non-city factions
         ...factions.filter((faction) => !faction.cities.includes(faction.name)),
-    ];
+    ]
 
     // Since we want to join every faction, this needs to run sequentially
     /* eslint-disable no-await-in-loop */
@@ -101,7 +102,7 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
          * then let's check the next one
          */
         if (faction.cities.length === 0) {
-            continue;
+            continue
         }
 
         // If we've already joined an enemy faction then let's move on
@@ -109,7 +110,7 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
             faction.enemies.length > 0 &&
             hasJoinedEnemyFaction(ns, faction.enemies)
         ) {
-            continue;
+            continue
         }
 
         /**
@@ -119,12 +120,12 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
         if (!hasFactionRep(ns, faction.name)) {
             // Need to check if we're already in the city before travelling
             if (!faction.cities.includes(currentCity)) {
-                currentCity = await travelToCity(ns, faction.cities[0]);
+                currentCity = await travelToCity(ns, faction.cities[0])
             }
 
             while (!hasFactionRep(ns, faction.name)) {
-                ns.print(`Waiting in ${currentCity} to join ${faction.name}.`);
-                await ns.sleep(1000);
+                ns.print(`Waiting in ${currentCity} to join ${faction.name}.`)
+                await ns.sleep(1000)
             }
         }
     }
@@ -133,13 +134,13 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
 
 async function travelToCity(ns: NS, city: string): Promise<string> {
     if (isAlreadyInCity(ns, city)) {
-        return city;
+        return city
     }
 
     while (!ns.travelToCity(city)) {
         // eslint-disable-next-line no-await-in-loop
-        await ns.sleep(1000);
+        await ns.sleep(1000)
     }
 
-    return city;
+    return city
 }
