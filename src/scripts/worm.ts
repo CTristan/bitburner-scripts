@@ -1,5 +1,5 @@
-import { NS, Server } from "@ns";
-import { forceRunScript, scanForAllServers } from "/scripts/utils.js";
+import { NS, Server } from "@ns"
+import { forceRunScript, scanForAllServers } from "/scripts/utils.js"
 
 /**
  * Scans all hackable servers, roots them and installs hacking scripts on them.
@@ -7,29 +7,27 @@ import { forceRunScript, scanForAllServers } from "/scripts/utils.js";
  **/
 export async function main(ns: NS): Promise<void> {
     // First arg is whether or not to force a script update on all servers
-    const forceScriptUpdate = ns.args.length > 0 ? ns.args[0] : false;
-    disableLogs(ns);
+    const forceScriptUpdate = ns.args.length > 0 ? ns.args[0] : false
+    disableLogs(ns)
 
     // The script name to infect every server with.
-    const scripts = ["/scripts/loop.js"];
+    const scripts = ["/scripts/loop.js"]
 
     // Infect all servers, including purchased servers.
-    const servers = scanForAllServers(ns, true);
+    const servers = scanForAllServers(ns, true)
 
-    let scriptNumber = 0;
-    for (let i = 0; i < servers.length; i++) {
-        const server = servers[i];
-
+    let scriptNumber = 0
+    for (const server of servers) {
         // If we force a script update, we don't want to kill home as well
         if (forceScriptUpdate && server != "home") {
-            ns.killall(server);
+            ns.killall(server)
         }
 
-        ns.print("About to infect " + server);
+        ns.print("About to infect " + server)
 
         // Script number must be sequentially assigned
         // eslint-disable-next-line no-await-in-loop
-        scriptNumber = await hackServer(ns, server, scripts, scriptNumber);
+        scriptNumber = await hackServer(ns, server, scripts, scriptNumber)
     }
 }
 
@@ -51,37 +49,37 @@ export async function hackServer(
     scriptNumber: number
 ): Promise<number> {
     // Root the server before infecting it
-    const server = ns.getServer(hostname);
-    await rootServer(ns, server);
+    const server = ns.getServer(hostname)
+    await rootServer(ns, server)
 
     /**
      * We need to make sure there's enough memory, so we'll skip any servers
      * that don't have enough RAM. We'll only use 70% of our home server.
      */
-    const ramMult = server.hostname === "home" ? 0.7 : 1;
-    const serverMaxRam = ns.getServerMaxRam(hostname) * ramMult;
+    const ramMult = server.hostname === "home" ? 0.7 : 1
+    const serverMaxRam = ns.getServerMaxRam(hostname) * ramMult
 
-    const scpTasks = [];
-    let scriptsRam = 0;
+    const scpTasks = []
+    let scriptsRam = 0
     for (const script of scripts) {
-        scriptsRam += ns.getScriptRam(script);
-        scpTasks.push(ns.scp(script, "home", hostname));
+        scriptsRam += ns.getScriptRam(script)
+        scpTasks.push(ns.scp(script, "home", hostname))
     }
-    await Promise.all(scpTasks);
+    await Promise.all(scpTasks)
 
     if (serverMaxRam < scriptsRam) {
-        return scriptNumber;
+        return scriptNumber
     }
 
     // Make sure we don't clog up the server with hundreds of processes
-    const maxProcesses = 99;
+    const maxProcesses = 99
     let threads = Math.max(
         Math.ceil(serverMaxRam / scriptsRam / maxProcesses),
         1
-    );
+    )
 
-    let serverUsedRam = ns.getServerUsedRam(hostname);
-    let serverRam = serverMaxRam - serverUsedRam;
+    let serverUsedRam = ns.getServerUsedRam(hostname)
+    let serverRam = serverMaxRam - serverUsedRam
 
     while (serverRam > scriptsRam) {
         /**
@@ -89,26 +87,26 @@ export async function hackServer(
          * loop. Usually happens on the last instance where there's still
          * available RAM but not enough for the full number of threads.
          */
-        let processId = ns.exec(scripts[0], hostname, threads, scriptNumber);
+        let processId = ns.exec(scripts[0], hostname, threads, scriptNumber)
         while (processId === 0) {
-            threads--;
+            threads--
 
             if (threads <= 0) {
-                return scriptNumber;
+                return scriptNumber
             }
 
-            processId = ns.exec(scripts[0], hostname, threads, scriptNumber);
+            processId = ns.exec(scripts[0], hostname, threads, scriptNumber)
         }
 
-        scriptNumber++;
-        serverUsedRam = ns.getServerUsedRam(hostname);
-        serverRam = serverMaxRam - serverUsedRam;
+        scriptNumber++
+        serverUsedRam = ns.getServerUsedRam(hostname)
+        serverRam = serverMaxRam - serverUsedRam
 
         // Small sleep to prevent GUI freezing up
-        await ns.asleep(1);
+        await ns.asleep(1)
     }
 
-    return scriptNumber;
+    return scriptNumber
 }
 
 async function rootServer(ns: NS, server: Server): Promise<void> {
@@ -121,16 +119,16 @@ async function rootServer(ns: NS, server: Server): Promise<void> {
             "relaySMTP.exe",
             "HTTPWorm.exe",
             "SQLInject.exe",
-        ];
-        let openablePorts = 0;
+        ]
+        let openablePorts = 0
         for (let i = 0; i < portOpeners.length; i++) {
             if (ns.fileExists(portOpeners[i], "home")) {
-                openablePorts++;
+                openablePorts++
             }
         }
 
         // Ports required to open the server
-        const requiredPorts = ns.getServerNumPortsRequired(server.hostname);
+        const requiredPorts = ns.getServerNumPortsRequired(server.hostname)
 
         // Make sure we can actually hack this server
         if (
@@ -138,29 +136,29 @@ async function rootServer(ns: NS, server: Server): Promise<void> {
                 ns.getHackingLevel() ||
             requiredPorts > openablePorts
         ) {
-            ns.print(server.hostname + " is not currently rootable. Skipping.");
-            return;
+            ns.print(server.hostname + " is not currently rootable. Skipping.")
+            return
         }
-        ns.print("Hacking " + server.hostname);
+        ns.print("Hacking " + server.hostname)
 
         // First check if we're rooted or not
         if (!ns.hasRootAccess(server.hostname)) {
             if (requiredPorts > 0) {
-                ns.brutessh(server.hostname);
+                ns.brutessh(server.hostname)
             }
             if (requiredPorts > 1) {
-                ns.ftpcrack(server.hostname);
+                ns.ftpcrack(server.hostname)
             }
             if (requiredPorts > 2) {
-                ns.relaysmtp(server.hostname);
+                ns.relaysmtp(server.hostname)
             }
             if (requiredPorts > 3) {
-                ns.httpworm(server.hostname);
+                ns.httpworm(server.hostname)
             }
             if (requiredPorts > 4) {
-                ns.sqlinject(server.hostname);
+                ns.sqlinject(server.hostname)
             }
-            ns.nuke(server.hostname);
+            ns.nuke(server.hostname)
         }
 
         await forceRunScript(
@@ -168,18 +166,18 @@ async function rootServer(ns: NS, server: Server): Promise<void> {
             "/scripts/singularity/install-backdoor.js",
             "home",
             server.hostname
-        );
+        )
     }
 
     // Utils needed for all servers
-    await ns.scp("/scripts/utils.js", "home", server.hostname);
-    await ns.scp("/classes/constants.js", "home", server.hostname);
+    await ns.scp("/scripts/utils.js", "home", server.hostname)
+    await ns.scp("/classes/constants.js", "home", server.hostname)
 }
 
 /** @param {NS} ns */
 function disableLogs(ns: NS): void {
-    ns.disableLog("getHackingLevel");
-    ns.disableLog("getServerNumPortsRequired");
-    ns.disableLog("getServerRequiredHackingLevel");
-    ns.disableLog("scan");
+    ns.disableLog("getHackingLevel")
+    ns.disableLog("getServerNumPortsRequired")
+    ns.disableLog("getServerRequiredHackingLevel")
+    ns.disableLog("scan")
 }

@@ -1,4 +1,4 @@
-import { NS } from "@ns";
+import { NS } from "@ns"
 
 /**
  * Connects to the specified server.
@@ -7,30 +7,30 @@ import { NS } from "@ns";
  * @returns True if we were able to connect to the server.
  */
 export function connectTo(ns: NS, server: string, parentServer = ""): boolean {
-    const hostname = ns.getCurrentServer();
+    const hostname = ns.getCurrentServer()
 
     if (hostname === server) {
-        return true;
+        return true
     }
 
     /**
      * Because we can only connect to neighbors, this implements
      * a tree-traversal algorithm.
      */
-    const servers = ns.scan(hostname).filter((s) => s != parentServer);
+    const servers = ns.scan(hostname).filter((s) => s != parentServer)
     for (let i = 0; i < servers.length; i++) {
-        const currentServer = servers[i];
+        const currentServer = servers[i]
 
         if (currentServer != parentServer) {
-            ns.connect(currentServer);
+            ns.connect(currentServer)
             if (connectTo(ns, server, hostname)) {
-                return true;
+                return true
             }
         }
     }
 
-    ns.connect(parentServer);
-    return false;
+    ns.connect(parentServer)
+    return false
 }
 
 /**
@@ -54,36 +54,39 @@ export async function forceRunScript(
     if (!ns.fileExists(script)) {
         throw new Error(
             `Invalid script "${script}" in forceRunScript in utils.js`
-        );
+        )
     }
 
     /**
      * If the script would use more than 20% of the server's max RAM, let's
      * skip it since it may never run
      */
-    const serverMaxRam = ns.getServerMaxRam(server);
-    const scriptRam = ns.getScriptRam(script);
+    const serverMaxRam = ns.getServerMaxRam(server)
+    const scriptRam = ns.getScriptRam(script)
 
     if (scriptRam > serverMaxRam * 0.2) {
         ns.print(
             `Will not run script ${script} because it requires ` +
                 `${scriptRam}GB which is more than 20% of the ${serverMaxRam}GB ` +
                 `available on ${server}`
-        );
-        return false;
+        )
+        return false
     }
 
-    if (!ns.scriptRunning(script, server)) {
-        let scriptStarted = runScript(ns, script, server, ...args);
+    // TODO: When this is fixed upstream, change to use the same ...args
+    const argsString = args.map((arg) => (arg = arg.toString()))
+
+    if (!ns.isRunning(script, server, ...argsString)) {
+        let scriptStarted = runScript(ns, script, server, ...args)
         while (!scriptStarted) {
-            ns.print(`Waiting to start ${script}`);
+            ns.print(`Waiting to start ${script}`)
             // eslint-disable-next-line no-await-in-loop
-            await ns.sleep(1000);
-            scriptStarted = runScript(ns, script, server, ...args);
+            await ns.sleep(1000)
+            scriptStarted = runScript(ns, script, server, ...args)
         }
     }
 
-    return true;
+    return true
 }
 
 /**
@@ -93,11 +96,11 @@ export async function forceRunScript(
  * @return The number of threads currently being used by this script.
  */
 export function getThreadCount(ns: NS): number {
-    const serverName = ns.getHostname();
-    const scriptName = ns.getScriptName();
-    const runningScript = ns.getRunningScript(scriptName, serverName);
+    const serverName = ns.getHostname()
+    const scriptName = ns.getScriptName()
+    const runningScript = ns.getRunningScript(scriptName, serverName)
 
-    return runningScript.threads;
+    return runningScript.threads
 }
 
 /**
@@ -106,11 +109,11 @@ export function getThreadCount(ns: NS): number {
  * @return True if we own the server.
  */
 export function isServerOwned(hostname: string): boolean {
-    return hostname.substring(0, 4) == "home";
+    return hostname.substring(0, 4) == "home"
 }
 
 export function isWorking(ns: NS, workType: string): boolean {
-    return ns.getPlayer().workType === workType;
+    return ns.getPlayer().workType === workType
 }
 
 /**
@@ -120,31 +123,31 @@ export function isWorking(ns: NS, workType: string): boolean {
  * @return The number of threads being used currently if we didn't restart.
  * **/
 export function restartWithMaxThreadsIfPossible(ns: NS): number {
-    const serverName = ns.getHostname();
-    const scriptName = ns.getScriptName();
+    const serverName = ns.getHostname()
+    const scriptName = ns.getScriptName()
 
-    const maxRam = ns.getServerMaxRam(serverName);
-    const usedRam = ns.getServerUsedRam(serverName);
-    const availableRam = maxRam - usedRam;
+    const maxRam = ns.getServerMaxRam(serverName)
+    const usedRam = ns.getServerUsedRam(serverName)
+    const availableRam = maxRam - usedRam
 
-    const memCost = ns.getScriptRam(scriptName);
-    let threads = Math.floor(availableRam / memCost);
+    const memCost = ns.getScriptRam(scriptName)
+    let threads = Math.floor(availableRam / memCost)
 
     // On our home server we need to reserve some threads for other scripts we might want to run
     if (serverName == "home") {
-        threads -= 4;
+        threads -= 4
     } else {
         // On every server, max out the threads.
-        threads++;
+        threads++
     }
 
     // Make sure we're not already running at max threads before restarting
-    const currentThreadCount = getThreadCount(ns);
+    const currentThreadCount = getThreadCount(ns)
     if (threads > currentThreadCount) {
-        ns.spawn(scriptName, threads);
+        ns.spawn(scriptName, threads)
     }
 
-    return currentThreadCount;
+    return currentThreadCount
 }
 
 /**
@@ -165,11 +168,11 @@ export function runScript(
         ns.fileExists(scriptName, hostname) &&
         !ns.isRunning(scriptName, hostname)
     ) {
-        const pid = ns.exec(scriptName, hostname, 1, ...args);
-        return pid > 0;
+        const pid = ns.exec(scriptName, hostname, 1, ...args)
+        return pid > 0
     }
 
-    return false;
+    return false
 }
 
 /**
@@ -183,35 +186,33 @@ export function scanForAllServers(
     includeOwnedServers = false
 ): string[] {
     // Start our scanning with the current server
-    let servers = [ns.getHostname()];
-    let scanIndex = 0;
+    let servers = [ns.getHostname()]
+    let scanIndex = 0
 
-    ns.print("Scanning for all servers.");
+    ns.print("Scanning for all servers.")
     do {
         // Scan reachable servers for any new servers
-        const scanList = ns.scan(servers[scanIndex]);
+        const scanList = ns.scan(servers[scanIndex])
 
-        for (let i = 0; i < scanList.length; i++) {
-            const server = scanList[i];
-
+        for (const server of scanList) {
             // Make sure we don't already have this server in our list
             if (servers.indexOf(server) == -1) {
-                servers.push(server);
+                servers.push(server)
             }
         }
-        scanIndex++;
+        scanIndex++
 
         // If we're at the end, reset the index so we can exit the loop
         if (scanIndex > servers.length) {
-            scanIndex = 0;
+            scanIndex = 0
         }
-    } while (scanIndex > 0);
+    } while (scanIndex > 0)
 
     // Remove owned servers (unless we want them)
     if (!includeOwnedServers) {
-        servers = servers.filter((server) => !isServerOwned(server));
+        servers = servers.filter((server) => !isServerOwned(server))
     }
 
-    ns.print(servers.length + " servers found.");
-    return servers;
+    ns.print(servers.length + " servers found.")
+    return servers
 }
