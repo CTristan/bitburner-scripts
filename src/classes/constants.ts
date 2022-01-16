@@ -1,12 +1,14 @@
-import { ICities } from "/interfaces/icities.js";
-import { ICompanies } from "/interfaces/icompanies.js";
-import { ICrimes } from "/interfaces/icrimes.js";
-import { IFactions } from "/interfaces/ifactions.js";
-import { IPositions } from "/interfaces/ipositions.js";
-import { IPrograms } from "/interfaces/iprograms.js";
-import { IStats } from "/interfaces/istats.js";
-import { ITasks } from "/interfaces/itasks.js";
-import { IWorkTypes } from "/interfaces/iworktypes.js";
+import { ICities } from "/interfaces/icities.js"
+import { ICompanies } from "/interfaces/icompanies.js"
+import { ICrimes } from "/interfaces/icrimes.js"
+import { IFactions } from "/interfaces/ifactions.js"
+import { IPositions } from "/interfaces/ipositions.js"
+import { IPrograms } from "/interfaces/iprograms.js"
+import { IStats } from "/interfaces/istats.js"
+import { ITasks } from "/interfaces/itasks.js"
+import { IWorkTypes } from "/interfaces/iworktypes.js"
+
+export const AlwaysAvailableAugmentation = "NeuroFlux Governor"
 
 export const Cities: ICities = {
     // Starting city
@@ -20,7 +22,7 @@ export const Cities: ICities = {
     Ishima: "Ishima",
     NewTokyo: "New Tokyo",
     Volhaven: "Volhaven",
-};
+}
 
 export const Factions: IFactions = {
     // Main Quest
@@ -128,14 +130,14 @@ export const Factions: IFactions = {
     // Endgame
     Covenant: { name: "The Covenant", cities: [], enemies: [] }, // 1,250,000
     Illuminati: { name: "Illuminati", cities: [], enemies: [] },
-};
+}
 
 export const Positions: IPositions = {
     Agent: { name: "Agent", repMin: 8000 },
     PartTime: { name: "part-time Employee", repMin: 0 },
     Software: { name: "Software", repMin: 0 },
     SoftwareConsultant: { name: "Software Consultant", repMin: 0 },
-};
+}
 
 export const Companies: ICompanies = {
     // Companies with their own faction
@@ -227,7 +229,7 @@ export const Companies: ICompanies = {
         salaryMult: 1,
         position: Positions.PartTime,
     },
-};
+}
 
 export const Crimes: ICrimes = {
     Assassination: {
@@ -350,7 +352,7 @@ export const Crimes: ICrimes = {
         agiExp: 20,
         chaExp: 40,
     },
-};
+}
 
 export const Programs: IPrograms = {
     BruteSSH: { name: "BruteSSH.exe", hackLevelReq: 50 },
@@ -363,13 +365,13 @@ export const Programs: IPrograms = {
     AutoLink: { name: "AutoLink.exe", hackLevelReq: 25 },
     ServerProfiler: { name: "ServerProfiler.exe", hackLevelReq: 75 },
     Formulas: { name: "Formulas.exe", hackLevelReq: 1000 },
-};
+}
 
 export const Tasks: ITasks = {
     Grow: "grow",
     Hack: "hack",
     Weaken: "weaken",
-};
+}
 
 export const Stats: IStats = {
     Agility: "agility",
@@ -378,7 +380,7 @@ export const Stats: IStats = {
     Dexterity: "dexterity",
     Hacking: "hacking",
     Strength: "strength",
-};
+}
 
 export const WorkTypes: IWorkTypes = {
     Company: "Working for Company",
@@ -387,4 +389,4 @@ export const WorkTypes: IWorkTypes = {
     Crime: "Committing a crime",
     Factions: "Working for Faction",
     StudyClass: "Studying or Taking a class at university",
-};
+}

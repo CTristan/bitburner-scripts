@@ -1,4 +1,4 @@
-import { NS } from "@ns";
+import { NS } from "@ns"
 
 /**
  * Automates purchases based off of historical profit.
@@ -6,46 +6,46 @@ import { NS } from "@ns";
  **/
 export async function main(ns: NS): Promise<void> {
     // First argument is whether we should initialize files (for first run after Augmentation)
-    const firstRun = ns.args[0] === true;
-    disableLogs(ns);
+    const firstRun = ns.args[0] === true
+    disableLogs(ns)
 
     // Initialize our files on first run if needed
-    const serverIncomeFile = "/data/income-servers.txt";
-    const serverExpenseFile = "/data/expenses-servers.txt";
-    const hacknetExpenseFile = "/data/expenses-hacknet.txt";
+    const serverIncomeFile = "/data/income-servers.txt"
+    const serverExpenseFile = "/data/expenses-servers.txt"
+    const hacknetExpenseFile = "/data/expenses-hacknet.txt"
 
     if (firstRun) {
         await initializeFiles(ns, [
             serverIncomeFile,
             serverExpenseFile,
             hacknetExpenseFile,
-        ]);
-        ns.spawn("/scripts/automate-purchases.js");
+        ])
+        ns.spawn("/scripts/automate-purchases.js")
     }
 
     // Since this is an infinite loop, we want to run everything sequentially.
     /* eslint-disable no-await-in-loop */
     for (;;) {
         // Get how much we've earned so far
-        const serverMoneyEarned = getServerMoneyEarned(ns);
-        const hacknetMoneyEarned = getHacknetMoneyEarned(ns);
+        const serverMoneyEarned = getServerMoneyEarned(ns)
+        const hacknetMoneyEarned = getHacknetMoneyEarned(ns)
 
         // Get how much we've spent so far
-        const serverExpenses = parseFloat(await ns.read(serverExpenseFile));
-        const hacknetExpenses = parseFloat(await ns.read(hacknetExpenseFile));
+        const serverExpenses = parseFloat(await ns.read(serverExpenseFile))
+        const hacknetExpenses = parseFloat(await ns.read(hacknetExpenseFile))
 
         // We'll only make available however much the purchases have paid for
-        let serverProfits = serverMoneyEarned - serverExpenses;
-        let hacknetProfits = hacknetMoneyEarned - hacknetExpenses;
+        let serverProfits = serverMoneyEarned - serverExpenses
+        let hacknetProfits = hacknetMoneyEarned - hacknetExpenses
 
         // Kickstart for first run after Augmentation
-        const availableFunds = ns.getServerMoneyAvailable("home");
+        const availableFunds = ns.getServerMoneyAvailable("home")
         if (serverProfits === 0 || availableFunds < serverProfits) {
-            serverProfits = availableFunds;
+            serverProfits = availableFunds
         }
 
         if (hacknetProfits === 0 || availableFunds < hacknetProfits) {
-            hacknetProfits = availableFunds;
+            hacknetProfits = availableFunds
         }
 
         if (
@@ -53,10 +53,10 @@ export async function main(ns: NS): Promise<void> {
             !(await upgradeHacknet(ns, hacknetProfits, hacknetExpenseFile))
         ) {
             // We tried to buy an upgrade but we couldn't afford one yet.
-            ns.print("No purchases we can afford.");
+            ns.print("No purchases we can afford.")
         }
 
-        await ns.sleep(1000);
+        await ns.sleep(1000)
     }
     /* eslint-enable no-await-in-loop */
 }
@@ -67,14 +67,9 @@ export async function main(ns: NS): Promise<void> {
  * @param {string[]} files The list of files to initialize.
  */
 async function initializeFiles(ns: NS, files: string[]): Promise<void> {
-    // Each file is independent so we can write to them asynchronously
-    const writeTasks = [];
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        writeTasks.push(ns.write(file, 0, "w"));
+    for (const file of files) {
+        await ns.write(file, 0, "w")
     }
-
-    await Promise.all(writeTasks);
 }
 
 /**
@@ -88,11 +83,11 @@ async function addCostToExpenses(
     cost: number,
     expenseFile: string
 ): Promise<void> {
-    let expenses = parseFloat(await ns.read(expenseFile));
-    expenses += cost;
+    let expenses = parseFloat(await ns.read(expenseFile))
+    expenses += cost
 
-    ns.clear(expenseFile);
-    await ns.write(expenseFile, expenses, "w");
+    ns.clear(expenseFile)
+    await ns.write(expenseFile, expenses, "w")
 }
 
 /**
@@ -101,11 +96,11 @@ async function addCostToExpenses(
  * @return Amount of money generated.
  */
 function getServerMoneyEarned(ns: NS): number {
-    const player = ns.getPlayer();
-    const playtime = player.playtimeSinceLastAug;
-    const scriptIncome = ns.getScriptIncome()[1];
+    const player = ns.getPlayer()
+    const playtime = player.playtimeSinceLastAug
+    const scriptIncome = ns.getScriptIncome()[1]
 
-    return scriptIncome * playtime;
+    return scriptIncome * playtime
 }
 
 /**
@@ -114,14 +109,14 @@ function getServerMoneyEarned(ns: NS): number {
  * @return How much money Hacknet has generated.
  */
 function getHacknetMoneyEarned(ns: NS): number {
-    let moneyEarned = 0;
-    const numNodes = ns.hacknet.numNodes();
+    let moneyEarned = 0
+    const numNodes = ns.hacknet.numNodes()
     for (let i = 0; i < numNodes; i++) {
-        const node = ns.hacknet.getNodeStats(i);
-        moneyEarned += node.totalProduction;
+        const node = ns.hacknet.getNodeStats(i)
+        moneyEarned += node.totalProduction
     }
 
-    return moneyEarned;
+    return moneyEarned
 }
 
 /**
@@ -138,53 +133,53 @@ async function upgradeServers(
     expenseFile: string
 ): Promise<boolean> {
     // We only want servers with enough ram to run our batching scripts
-    let ram = 4;
-    ns.print(`Using ${availableFunds} for server upgrades.`);
+    let ram = 4
+    ns.print(`Using ${availableFunds} for server upgrades.`)
 
-    const servers = ns.getPurchasedServers();
+    const servers = ns.getPurchasedServers()
     if (servers.length < ns.getPurchasedServerLimit()) {
-        const serverCost = ns.getPurchasedServerCost(ram);
+        const serverCost = ns.getPurchasedServerCost(ram)
         if (serverCost <= availableFunds) {
             // Will automatically increment server name
-            const serverName = ns.purchaseServer("home", ram);
-            ns.exec("/scripts/worm.js", "home");
-            ns.print("New server created: " + serverName);
+            const serverName = ns.purchaseServer("home", ram)
+            ns.exec("/scripts/worm.js", "home")
+            ns.print("New server created: " + serverName)
 
-            await addCostToExpenses(ns, serverCost, expenseFile);
-            return true;
+            await addCostToExpenses(ns, serverCost, expenseFile)
+            return true
         }
     }
 
-    const maxRam = ns.getPurchasedServerMaxRam();
-    let totalCost = 0;
+    const maxRam = ns.getPurchasedServerMaxRam()
+    let totalCost = 0
     for (let i = 0; i < servers.length; i++) {
-        const server = servers[i];
+        const server = servers[i]
 
         // Next upgrade is always twice as much RAM
-        ram = ns.getServerMaxRam(server) * 2;
-        const serverCost = ns.getPurchasedServerCost(ram);
+        ram = ns.getServerMaxRam(server) * 2
+        const serverCost = ns.getPurchasedServerCost(ram)
         if (serverCost <= availableFunds && ram <= maxRam) {
-            ns.killall(server);
-            ns.deleteServer(server);
+            ns.killall(server)
+            ns.deleteServer(server)
 
             // Use whatever new name is given to prevent stale names in loop
-            ns.purchaseServer("home", ram);
-            ns.exec("/scripts/worm.js", "home");
+            ns.purchaseServer("home", ram)
+            ns.exec("/scripts/worm.js", "home")
             ns.print(
                 `Replaced server ${server} with new server with ${ram}GB memory.`
-            );
+            )
 
-            availableFunds -= serverCost;
-            totalCost += serverCost;
+            availableFunds -= serverCost
+            totalCost += serverCost
         }
     }
 
     if (totalCost > 0) {
-        await addCostToExpenses(ns, totalCost, expenseFile);
-        return true;
+        await addCostToExpenses(ns, totalCost, expenseFile)
+        return true
     }
 
-    return false;
+    return false
 }
 
 /**
@@ -199,56 +194,56 @@ async function upgradeHacknet(
     availableFunds: number,
     expenseFile: string
 ): Promise<boolean> {
-    ns.print(`Using ${availableFunds} for Hacknet upgrades.`);
+    ns.print(`Using ${availableFunds} for Hacknet upgrades.`)
 
-    const hacknetNodeCost = ns.hacknet.getPurchaseNodeCost();
-    let totalCost = 0;
+    const hacknetNodeCost = ns.hacknet.getPurchaseNodeCost()
+    let totalCost = 0
     if (hacknetNodeCost <= availableFunds) {
-        ns.hacknet.purchaseNode();
-        totalCost += hacknetNodeCost;
-        ns.print(`Purchased a new Hacknet node for $${hacknetNodeCost}.`);
+        ns.hacknet.purchaseNode()
+        totalCost += hacknetNodeCost
+        ns.print(`Purchased a new Hacknet node for $${hacknetNodeCost}.`)
     } else {
-        const numNodes = ns.hacknet.numNodes();
+        const numNodes = ns.hacknet.numNodes()
         for (let i = 0; i < numNodes; i++) {
-            let cost = ns.hacknet.getLevelUpgradeCost(i, 1);
+            let cost = ns.hacknet.getLevelUpgradeCost(i, 1)
             if (cost <= availableFunds) {
-                ns.hacknet.upgradeLevel(i, 1);
+                ns.hacknet.upgradeLevel(i, 1)
 
-                availableFunds -= cost;
-                totalCost += cost;
-                ns.print(`Upgraded a hacknet node's level for $${cost}`);
+                availableFunds -= cost
+                totalCost += cost
+                ns.print(`Upgraded a hacknet node's level for $${cost}`)
             }
 
-            cost = ns.hacknet.getRamUpgradeCost(i, 1);
+            cost = ns.hacknet.getRamUpgradeCost(i, 1)
             if (cost <= availableFunds) {
-                ns.hacknet.upgradeRam(i, 1);
+                ns.hacknet.upgradeRam(i, 1)
 
-                availableFunds -= cost;
-                totalCost += cost;
-                ns.print(`Upgraded a hacknet node's RAM for $${cost}`);
+                availableFunds -= cost
+                totalCost += cost
+                ns.print(`Upgraded a hacknet node's RAM for $${cost}`)
             }
 
-            cost = ns.hacknet.getCoreUpgradeCost(i, 1);
+            cost = ns.hacknet.getCoreUpgradeCost(i, 1)
             if (cost <= availableFunds) {
-                ns.hacknet.upgradeCore(i, 1);
+                ns.hacknet.upgradeCore(i, 1)
 
-                availableFunds -= cost;
-                totalCost += cost;
-                ns.print(`Upgraded a hacknet node's cores for $${cost}`);
+                availableFunds -= cost
+                totalCost += cost
+                ns.print(`Upgraded a hacknet node's cores for $${cost}`)
             }
         }
     }
 
     if (totalCost > 0) {
-        await addCostToExpenses(ns, totalCost, expenseFile);
-        return true;
+        await addCostToExpenses(ns, totalCost, expenseFile)
+        return true
     }
 
-    return false;
+    return false
 }
 
 function disableLogs(ns: NS): void {
-    ns.disableLog("getServerMaxRam");
-    ns.disableLog("getServerMoneyAvailable");
-    ns.disableLog("sleep");
+    ns.disableLog("getServerMaxRam")
+    ns.disableLog("getServerMoneyAvailable")
+    ns.disableLog("sleep")
 }

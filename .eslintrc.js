@@ -19,7 +19,10 @@ module.exports = {
     ignorePatterns: ["*.d.ts", "*.js"],
     rules: {
         "no-constant-condition": ["off"],
-        "require-await": "error",
         "@typescript-eslint/no-floating-promises": "error",
+
+        // Not creating a pull request for these since it requires base methods
+        // to need disable comments
+        "require-await": "error",
     },
 }
