@@ -1,5 +1,5 @@
 import { NS } from "@ns"
-import { scanForAllServers } from "/scripts/utils.js"
+import { runScript, scanForAllServers } from "/scripts/utils.js"
 
 /**
  * Looping hack/weaken/grow/weaken cycle for either the current server or the best server available.
@@ -76,27 +76,34 @@ function findBestServer(ns: NS): string {
         name: "",
     }
 
-    for (let i = 0; i < servers.length; i++) {
-        const server = servers[i]
+    while (bestServer.name === "") {
+        for (const server of servers) {
+            // Make sure we can actually hack it
+            if (ns.hasRootAccess(server)) {
+                // Get the money/second for hacking the server
+                const serverMoney = ns.getServerMoneyAvailable(server)
+                const timeToHack = ns.getHackTime(server)
+                const moneyPerSecond = serverMoney / timeToHack
 
-        // Make sure we can actually hack it
-        if (ns.hasRootAccess(server)) {
-            // Get the money/second for hacking the server
-            const serverMoney = ns.getServerMoneyAvailable(server)
-            const timeToHack = ns.getHackTime(server)
-            const moneyPerSecond = serverMoney / timeToHack
-
-            if (moneyPerSecond > bestServer.moneyPerSecond) {
-                ns.print(
-                    "New best server: " +
-                        server +
-                        " with $" +
-                        moneyPerSecond +
-                        " dps."
-                )
-                bestServer.name = server
-                bestServer.moneyPerSecond = moneyPerSecond
+                if (moneyPerSecond > bestServer.moneyPerSecond) {
+                    ns.print(
+                        "New best server: " +
+                            server +
+                            " with $" +
+                            moneyPerSecond +
+                            " dps."
+                    )
+                    bestServer.name = server
+                    bestServer.moneyPerSecond = moneyPerSecond
+                }
             }
+        }
+
+        // Most likely reason we don't have a best server yet is that the worm
+        // either hasn't finished or needs to run.
+        if (bestServer.name === "") {
+            ns.print("Not able to find any hackable servers, running worm.")
+            runScript(ns, "/scripts/worm.js")
         }
     }
 
