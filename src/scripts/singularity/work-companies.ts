@@ -44,6 +44,26 @@ export async function main(ns: NS): Promise<void> {
         }
     }
 
+    // If we don't have any companies we need to work for, let's go for
+    // achieving the CFO position of the company we have the most favor with
+    if (companyToWorkFor === "") {
+        // Check the company with the highest favor that has a business track
+        const company = companies
+            .filter((c) => c.position === Constants.Positions.Business)
+            .sort((a, b) => b.favor - a.favor)[0]
+
+        if (
+            ns.getCompanyRep(company.name) < 800e3 &&
+            (await applyToCompany(
+                ns,
+                company.name,
+                Constants.Positions.Business
+            ))
+        ) {
+            companyToWorkFor = company.name
+        }
+    }
+
     if (companyToWorkFor != "") {
         /**
          * Sleep until we gain 4000 rep (each position upgrade is divisible by
