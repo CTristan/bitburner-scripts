@@ -21,7 +21,6 @@ export async function main(ns: NS): Promise<void> {
         WorkTypes.Factions,
         WorkTypes.Company,
         WorkTypes.Crime,
-        WorkTypes.StudyClass,
     ]
 
     /**
@@ -60,13 +59,6 @@ export async function main(ns: NS): Promise<void> {
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/work-factions.js",
-                    ...priorityList
-                )
-                break
-            case WorkTypes.StudyClass:
-                await attemptToPerformWork(
-                    ns,
-                    "/scripts/singularity/raise-lowest-stat.js",
                     ...priorityList
                 )
                 break
