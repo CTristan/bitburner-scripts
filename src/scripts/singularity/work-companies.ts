@@ -36,7 +36,7 @@ export async function main(ns: NS): Promise<void> {
     for (const company of companies) {
         if (
             ns.getCompanyRep(company.name) < company.repReq &&
-            applyToCompany(ns, company.name, company.position) &&
+            (await applyToCompany(ns, company.name, company.position)) &&
             ns.workForCompany(company.name, ns.isFocused())
         ) {
             companyToWorkFor = company.name
@@ -76,22 +76,23 @@ export async function main(ns: NS): Promise<void> {
  * @param companyPosition
  * @returns True if we successfully applied to the company.
  */
-function applyToCompany(
+async function applyToCompany(
     ns: NS,
     companyName: string,
     companyPosition: IPosition
-): boolean {
+): Promise<boolean> {
     /**
-     * If we're already employed at this company, let's go apply to another
-     * company so we don't return a false negative. We do this because we want to
-     * also make sure we apply for promoted positions at the same time.
+     * We're going to start off with applying to a job that's always available
+     * to avoid any potential false negatives when we apply for a job we
+     * already have but don't qualify for a promotion. This also helps to avoid
+     * potential race conditions because it forces us to stop company work and
+     * collect the rep we've gained so far before re-applying.
      */
-    if (ns.getPlayer().companyName === companyName) {
-        ns.applyToCompany(
-            Constants.Companies.FoodNStuff.name,
-            Constants.Positions.PartTime.name
-        )
-    }
+    ns.applyToCompany(
+        Constants.Companies.FoodNStuff.name,
+        Constants.Positions.PartTime.name
+    )
+    await ns.sleep(1000)
 
     /**
      * If we don't have enough rep for the position we want there's
