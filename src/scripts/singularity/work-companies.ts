@@ -37,7 +37,7 @@ export async function main(ns: NS): Promise<void> {
         if (
             ns.getCompanyRep(company.name) < company.repReq &&
             (await applyToCompany(ns, company.name, company.position)) &&
-            ns.workForCompany(company.name, ns.isFocused())
+            ns.workForCompany(company.name)
         ) {
             companyToWorkFor = company.name
             break
