@@ -36,7 +36,7 @@ export async function main(ns: NS): Promise<void> {
     for (const company of companies) {
         if (
             ns.getCompanyRep(company.name) < company.repReq &&
-            (await applyToCompany(ns, company.name, company.position)) &&
+            applyToCompany(ns, company.name, company.position) &&
             ns.workForCompany(company.name)
         ) {
             companyToWorkFor = company.name
@@ -54,11 +54,7 @@ export async function main(ns: NS): Promise<void> {
 
         if (
             ns.getCompanyRep(company.name) < 800e3 &&
-            (await applyToCompany(
-                ns,
-                company.name,
-                Constants.Positions.Business
-            ))
+            applyToCompany(ns, company.name, Constants.Positions.Business)
         ) {
             companyToWorkFor = company.name
         }
@@ -96,23 +92,26 @@ export async function main(ns: NS): Promise<void> {
  * @param companyPosition
  * @returns True if we successfully applied to the company.
  */
-async function applyToCompany(
+function applyToCompany(
     ns: NS,
     companyName: string,
     companyPosition: IPosition
-): Promise<boolean> {
+): boolean {
+    // To avoid any race conditions, we'll make sure we've stopped work and
+    // collected our rep before continuing on.
+    if (ns.getPlayer().workType === workType) {
+        ns.stopAction()
+    }
+
     /**
      * We're going to start off with applying to a job that's always available
      * to avoid any potential false negatives when we apply for a job we
-     * already have but don't qualify for a promotion. This also helps to avoid
-     * potential race conditions because it forces us to stop company work and
-     * collect the rep we've gained so far before re-applying.
+     * already have but don't qualify for a promotion.
      */
     ns.applyToCompany(
         Constants.Companies.FoodNStuff.name,
         Constants.Positions.PartTime.name
     )
-    await ns.sleep(1000)
 
     /**
      * If we don't have enough rep for the position we want there's
