@@ -185,8 +185,8 @@ export function scanForAllServers(
     ns: NS,
     includeOwnedServers = false
 ): string[] {
-    // Start our scanning with the current server
-    let servers = [ns.getHostname()]
+    // Start our scanning with the home server
+    let servers = ["home"]
     let scanIndex = 0
 
     ns.print("Scanning for all servers.")
