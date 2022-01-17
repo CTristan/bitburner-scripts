@@ -1,10 +1,10 @@
-import { NS } from "@ns";
-import * as Constants from "/classes/constants.js";
-import { IPosition } from "/interfaces/iposition.js";
-import { isWorking } from "/scripts/utils.js";
+import { NS } from "@ns"
+import * as Constants from "/classes/constants.js"
+import { IPosition } from "/interfaces/iposition.js"
+import { isWorking } from "/scripts/utils.js"
 
-const Companies = Constants.Companies;
-const workType = Constants.WorkTypes.Company;
+const Companies = Constants.Companies
+const workType = Constants.WorkTypes.Company
 
 /**
  * Works for the most profitable company we qualify for.
@@ -12,35 +12,35 @@ const workType = Constants.WorkTypes.Company;
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    let companies = [];
+    let companies = []
     for (const key in Companies) {
-        const company = Companies[key];
+        const company = Companies[key]
         companies.push({
             favor: ns.getCompanyFavor(company.name),
             name: company.name,
             position: company.position,
             repReq: company.repReq,
             salaryMult: company.salaryMult,
-        });
+        })
     }
 
     /**
      * Sort companies by least favor so we work at the most needed ones first
      * but first sort by least rep requirements and most salary in case of ties
      */
-    companies = companies.sort((a, b) => a.repReq - b.repReq);
-    companies = companies.sort((a, b) => b.salaryMult - a.salaryMult);
-    companies = companies.sort((a, b) => a.favor - b.favor);
+    companies = companies.sort((a, b) => a.repReq - b.repReq)
+    companies = companies.sort((a, b) => b.salaryMult - a.salaryMult)
+    companies = companies.sort((a, b) => a.favor - b.favor)
 
-    let companyToWorkFor = "";
+    let companyToWorkFor = ""
     for (const company of companies) {
         if (
             ns.getCompanyRep(company.name) < company.repReq &&
             applyToCompany(ns, company.name, company.position) &&
             ns.workForCompany(company.name, ns.isFocused())
         ) {
-            companyToWorkFor = company.name;
-            break;
+            companyToWorkFor = company.name
+            break
         }
     }
 
@@ -55,8 +55,16 @@ export async function main(ns: NS): Promise<void> {
             isWorking(ns, workType)
         ) {
             // eslint-disable-next-line no-await-in-loop
-            await ns.sleep(1000);
+            await ns.sleep(1000)
         }
+
+        ns.exit()
+    }
+
+    // If we're working for a company when we don't need to, let's stop so
+    // that we can do other work.
+    if (ns.getPlayer().workType === workType) {
+        ns.stopAction()
     }
 }
 
@@ -82,15 +90,14 @@ function applyToCompany(
         ns.applyToCompany(
             Constants.Companies.FoodNStuff.name,
             Constants.Positions.PartTime.name
-        );
+        )
     }
 
+    // If we don't have enough rep for the position we want there's
+    // always software development
     if (ns.getCompanyRep(companyName) < companyPosition.repMin) {
-        return ns.applyToCompany(
-            companyName,
-            Constants.Positions.Software.name
-        );
+        return ns.applyToCompany(companyName, Constants.Positions.Software.name)
     }
 
-    return ns.applyToCompany(companyName, companyPosition.name);
+    return ns.applyToCompany(companyName, companyPosition.name)
 }

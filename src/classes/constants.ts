@@ -364,7 +364,9 @@ export const Programs: IPrograms = {
     DeepscanV2: { name: "DeepscanV2.exe", hackLevelReq: 400 },
     AutoLink: { name: "AutoLink.exe", hackLevelReq: 25 },
     ServerProfiler: { name: "ServerProfiler.exe", hackLevelReq: 75 },
-    Formulas: { name: "Formulas.exe", hackLevelReq: 1000 },
+
+    // Removing until I find an actual use case
+    // Formulas: { name: "Formulas.exe", hackLevelReq: 1000 },
 }
 
 export const Tasks: ITasks = {

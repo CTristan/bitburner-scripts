@@ -1,6 +1,6 @@
-import { NS } from "@ns";
-import * as Constants from "/classes/constants.js";
-import { forceRunScript } from "/scripts/utils.js";
+import { NS } from "@ns"
+import * as Constants from "/classes/constants.js"
+import { forceRunScript } from "/scripts/utils.js"
 
 /**
  * Perform the next work that is important.
@@ -15,14 +15,14 @@ import { forceRunScript } from "/scripts/utils.js";
  * @param ns
  */
 export async function main(ns: NS): Promise<void> {
-    const WorkTypes = Constants.WorkTypes;
+    const WorkTypes = Constants.WorkTypes
     const prioritizedWork = [
         WorkTypes.CreateProgram,
         WorkTypes.Factions,
         WorkTypes.Company,
         WorkTypes.Crime,
         WorkTypes.StudyClass,
-    ];
+    ]
 
     /**
      * As we work through the work list, we'll add them to a priority list of
@@ -30,9 +30,9 @@ export async function main(ns: NS): Promise<void> {
      * Needs to run sequentially
      */
     /* eslint-disable no-await-in-loop */
-    const priorityList = [];
+    const priorityList = []
     for (let i = 0; i < prioritizedWork.length; i++) {
-        const workType = prioritizedWork[i];
+        const workType = prioritizedWork[i]
 
         switch (workType) {
             case WorkTypes.CreateProgram:
@@ -40,45 +40,45 @@ export async function main(ns: NS): Promise<void> {
                     ns,
                     "/scripts/singularity/create-programs.js",
                     ...priorityList
-                );
-                break;
+                )
+                break
             case WorkTypes.Company:
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/work-companies.js",
                     ...priorityList
-                );
-                break;
+                )
+                break
             case WorkTypes.Crime:
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/commit-crime.js",
                     ...priorityList
-                );
-                break;
+                )
+                break
             case WorkTypes.Factions:
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/work-factions.js",
                     ...priorityList
-                );
-                break;
+                )
+                break
             case WorkTypes.StudyClass:
                 await attemptToPerformWork(
                     ns,
                     "/scripts/singularity/raise-lowest-stat.js",
                     ...priorityList
-                );
-                break;
+                )
+                break
             default:
                 throw new Error(
                     `Attempted to perform work ${workType} but this work type
                 is not implemented.`
-                );
+                )
         }
 
-        priorityList.push(workType);
-        console.log(priorityList);
+        priorityList.push(workType)
+        console.log(priorityList)
     }
     /* eslint-enable no-await-in-loop */
 }
@@ -96,16 +96,20 @@ export async function attemptToPerformWork(
     ...priorityList: Array<string>
 ): Promise<void> {
     // Check if we are currently working on a priorityListed work type
-    const currentWorkType = ns.getPlayer().workType;
+    const currentWorkType = ns.getPlayer().workType
     if (priorityList.indexOf(currentWorkType) > -1) {
-        ns.exit();
+        ns.print(
+            `Checked if we should run ${script} but stopped because we're ` +
+                `${currentWorkType} which is higher in priority.`
+        )
+        ns.exit()
     }
 
-    await forceRunScript(ns, script, "home");
+    await forceRunScript(ns, script, "home")
 
     /**
      * Wait for a second to allow the script to run and start work before
      * before continuing on.
      */
-    await ns.sleep(1000);
+    await ns.sleep(1000)
 }
