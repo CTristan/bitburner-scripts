@@ -33,7 +33,7 @@ export async function main(ns: NS): Promise<void> {
 
         for (;;) {
             // No args, so we'll loop HWGW.
-            const server = findBestServer(ns)
+            const server = await findBestServer(ns)
 
             // Because multiple scripts might attack the same server, we'll have sanity checks at each step.
             let moneyAvailable = ns.getServerMoneyAvailable(server)
@@ -67,7 +67,7 @@ export async function main(ns: NS): Promise<void> {
  * @param {NS} ns
  * @return The best hackable server found.
  */
-function findBestServer(ns: NS): string {
+async function findBestServer(ns: NS): Promise<string> {
     // Get all of the reachable servers
     ns.print("About to scan for all servers.")
     const servers = scanForAllServers(ns)
@@ -104,6 +104,7 @@ function findBestServer(ns: NS): string {
         if (bestServer.name === "") {
             ns.print("Not able to find any hackable servers, running worm.")
             runScript(ns, "/scripts/worm.js")
+            await ns.sleep(1000)
         }
     }
 
@@ -213,7 +214,7 @@ async function growServers(ns: NS): Promise<void> {
 }
 
 async function hackServers(ns: NS): Promise<number> {
-    const server = findBestServer(ns)
+    const server = await findBestServer(ns)
     return await ns.hack(server)
 }
 
