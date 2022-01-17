@@ -86,9 +86,19 @@ async function workForFaction(
             ns.workForFaction(faction, "Security Work")
         }
 
-        // Sleep until we gain 1000 rep or start working on something else
-        while (ns.getPlayer().workRepGained < 1000 && isWorking(ns, workType)) {
-            // eslint-disable-next-line no-await-in-loop
+        /**
+         * Sleep until we do any of the following:
+         * - Gain the rest of the rep needed
+         * - Gain 1% of the needed rep
+         * - Start working on something else
+         */
+        const repDifference = repReq - rep
+        const repToGain = Math.min(repDifference, repReq * 0.01)
+        while (
+            ns.getPlayer().workRepGained < repToGain &&
+            isWorking(ns, workType)
+        ) {
+            ns.print(`Working until we've gained ${repToGain} rep.`)
             await ns.sleep(1000)
         }
     }
