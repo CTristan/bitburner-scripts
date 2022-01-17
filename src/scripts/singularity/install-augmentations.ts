@@ -138,5 +138,13 @@ async function installAugmentations(ns: NS): Promise<void> {
     // Before installing augmentations, try to make any last-minute purchases
     await forceRunScript(ns, "/scripts/purchase-any-augmentations.js")
 
-    ns.installAugmentations("first-run.js")
+    // Final check that we actually have any augmentations to install after
+    // trying to purchase any available ones
+    if (getPurchasedAugs(ns).length > 0) {
+        // BUG: Remove this when the "recovery mode when installing augmentations while working for faction"
+        // bug is fixed.
+        ns.stopAction()
+
+        ns.installAugmentations("first-run.js")
+    }
 }
