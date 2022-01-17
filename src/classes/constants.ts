@@ -134,72 +134,78 @@ export const Factions: IFactions = {
 
 export const Positions: IPositions = {
     Agent: { name: "Agent", repMin: 8000 },
+    Business: { name: "Business", repMin: 0 },
     PartTime: { name: "part-time Employee", repMin: 0 },
     Software: { name: "Software", repMin: 0 },
     SoftwareConsultant: { name: "Software Consultant", repMin: 0 },
 }
 
+/**
+ * List of companies that either have rep or are related to a game mechanic.
+ * Prefer Agent the most, others prefer Business since it's the easiest to
+ * get a C-level position for at 800k for CFO.
+ */
 export const Companies: ICompanies = {
     // Companies with their own faction
     MegaCorp: {
         name: "MegaCorp",
         repReq: 200e3,
         salaryMult: 3,
-        position: Positions.Software,
+        position: Positions.Business,
     },
     ECorp: {
         name: "ECorp",
         repReq: 200e3,
         salaryMult: 3,
-        position: Positions.Software,
+        position: Positions.Business,
     },
     Blade: {
         name: "Blade Industries",
         repReq: 200e3,
         salaryMult: 2.75,
-        position: Positions.Software,
+        position: Positions.Business,
     },
     NWO: {
         name: "NWO",
         repReq: 200e3,
         salaryMult: 2.75,
-        position: Positions.Software,
+        position: Positions.Business,
     },
     Bachman: {
         name: "Bachman & Associates",
         repReq: 200e3,
         salaryMult: 2.6,
-        position: Positions.Software,
+        position: Positions.Business,
     },
     Clarke: {
         name: "Clarke Incorporated",
         repReq: 200e3,
         salaryMult: 2.25,
-        position: Positions.Software,
+        position: Positions.Business,
     },
     OmniTek: {
         name: "OmniTek Incorporated",
         repReq: 200e3,
         salaryMult: 2.25,
-        position: Positions.Software,
+        position: Positions.Business,
     },
     FourSigma: {
         name: "Four Sigma",
         repReq: 200e3,
         salaryMult: 2.5,
-        position: Positions.Software,
+        position: Positions.Business,
     },
     KuaiGong: {
         name: "KuaiGong International",
         repReq: 200e3,
         salaryMult: 2.2,
-        position: Positions.Software,
+        position: Positions.Business,
     },
     Fulcrum: {
         name: "Fulcrum Technologies",
         repReq: 250e3,
         salaryMult: 2,
-        position: Positions.Software,
+        position: Positions.Business,
     },
 
     // Companies that have an Agent position

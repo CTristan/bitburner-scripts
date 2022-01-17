@@ -93,8 +93,16 @@ function applyToCompany(
         )
     }
 
-    // If we don't have enough rep for the position we want there's
-    // always software development
+    /**
+     * If we don't have enough rep for the position we want there's
+     * always software development.
+     *
+     * Note that we don't want to always default to Software Dev for all
+     * requirements. If we don't meet the required combat stats, then we want
+     * to skip this so we can commit crime to raise those stats. When we've
+     * gained enough stats from crime, this will automatically pick up the
+     * position we want since we'll have enough rep.
+     */
     if (ns.getCompanyRep(companyName) < companyPosition.repMin) {
         return ns.applyToCompany(companyName, Constants.Positions.Software.name)
     }
