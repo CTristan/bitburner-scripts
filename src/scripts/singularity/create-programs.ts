@@ -5,6 +5,7 @@ import { isWorking } from "/scripts/utils.js";
 const workType = Constants.WorkTypes.CreateProgram;
 
 /** @param {NS} ns **/
+// eslint-disable-next-line require-await
 export async function main(ns: NS): Promise<void> {
     let programs = [];
     for (const key in Constants.Programs) {

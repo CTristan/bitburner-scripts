@@ -5,6 +5,7 @@ import { NS } from '@ns';
  *
  * @param {NS} ns
  */
+// eslint-disable-next-line require-await
 export async function main(ns: NS): Promise<void> {
   ns.upgradeHomeCores();
 }
