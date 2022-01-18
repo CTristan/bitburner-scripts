@@ -32,8 +32,17 @@ export async function main(ns: NS): Promise<void> {
             highestRepReq = Math.max(highestRepReq, repReq)
         }
 
+        /**
+         * To prevent an issue where we get stuck on a high-rep faction because
+         * we used the +1 favor bonus very early in a bitnode, we'll also
+         * include how much favor we've gained so far in our sorting.
+         */
+        const favor =
+            ns.getFactionFavor(faction.name) +
+            ns.getFactionFavorGain(faction.name)
+
         factions.push({
-            favor: ns.getFactionFavor(faction.name),
+            favor: favor,
             name: faction.name,
             repReq: highestRepReq,
         })
@@ -89,11 +98,12 @@ async function workForFaction(
         /**
          * Sleep until we do any of the following:
          * - Gain the rest of the rep needed
-         * - Gain 1% of the needed rep
+         * - Gain 1 favor (500 rep)
          * - Start working on something else
          */
         const repDifference = repReq - rep
-        const repToGain = Math.min(repDifference, repReq * 0.01)
+        const repForOneFavor = 500
+        const repToGain = Math.min(repDifference, repForOneFavor)
         while (
             ns.getPlayer().workRepGained < repToGain &&
             isWorking(ns, workType)
