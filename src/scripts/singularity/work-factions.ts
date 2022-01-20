@@ -69,6 +69,12 @@ export async function main(ns: NS): Promise<void> {
     if (factionToWorkFor.name != "") {
         await workForFaction(ns, factionToWorkFor.name, factionToWorkFor.repReq)
     }
+
+    // If we're still working for a faction when we don't need to, let's stop
+    // so we can do other actions.
+    if (ns.getPlayer().workType === workType) {
+        ns.stopAction()
+    }
 }
 
 /**
