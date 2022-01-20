@@ -1,4 +1,5 @@
 import { NS } from "@ns"
+import { WorkTypes } from "/classes/constants"
 import { runScript, scanForAllServers } from "/scripts/utils.js"
 
 /**
@@ -32,6 +33,12 @@ export async function main(ns: NS): Promise<void> {
         await ns.sleep(waitTime)
 
         for (;;) {
+            // If we're working for a faction, let's focus on that instead
+            if (ns.getPlayer().workType === WorkTypes.Factions) {
+                await ns.share()
+                continue
+            }
+
             // No args, so we'll loop HWGW.
             const server = await findBestServer(ns)
 
