@@ -137,9 +137,20 @@ async function travelToCity(ns: NS, city: string): Promise<string> {
         return city
     }
 
-    while (!ns.travelToCity(city)) {
-        // eslint-disable-next-line no-await-in-loop
-        await ns.sleep(1000)
+    // BUG: Revert when "runtime when can't travel" bug is fixed
+    // while (!ns.travelToCity(city)) {
+    //     // eslint-disable-next-line no-await-in-loop
+    //     await ns.sleep(1000)
+    // }
+    let travelled = false
+    while (!travelled) {
+        try {
+            travelled = ns.travelToCity(city)
+        } catch {
+            travelled = false
+        } finally {
+            await ns.sleep(1000)
+        }
     }
 
     return city
