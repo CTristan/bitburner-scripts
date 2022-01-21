@@ -361,15 +361,47 @@ export const Crimes: ICrimes = {
 }
 
 export const Programs: IPrograms = {
-    BruteSSH: { name: "BruteSSH.exe", hackLevelReq: 50 },
-    FTPCrack: { name: "FTPCrack.exe", hackLevelReq: 100 },
-    RelaySMTP: { name: "relaySMTP.exe", hackLevelReq: 250 },
-    HTTPWorm: { name: "HTTPWorm.exe", hackLevelReq: 500 },
-    SQLInject: { name: "SQLInject.exe", hackLevelReq: 750 },
-    DeepscanV1: { name: "DeepscanV1.exe", hackLevelReq: 75 },
-    DeepscanV2: { name: "DeepscanV2.exe", hackLevelReq: 400 },
-    AutoLink: { name: "AutoLink.exe", hackLevelReq: 25 },
-    ServerProfiler: { name: "ServerProfiler.exe", hackLevelReq: 75 },
+    BruteSSH: { name: "BruteSSH.exe", hackLevelReq: 50, postSingularity: true },
+    FTPCrack: {
+        name: "FTPCrack.exe",
+        hackLevelReq: 100,
+        postSingularity: true,
+    },
+    RelaySMTP: {
+        name: "relaySMTP.exe",
+        hackLevelReq: 250,
+        postSingularity: true,
+    },
+    HTTPWorm: {
+        name: "HTTPWorm.exe",
+        hackLevelReq: 500,
+        postSingularity: true,
+    },
+    SQLInject: {
+        name: "SQLInject.exe",
+        hackLevelReq: 750,
+        postSingularity: true,
+    },
+    DeepscanV1: {
+        name: "DeepscanV1.exe",
+        hackLevelReq: 75,
+        postSingularity: false,
+    },
+    DeepscanV2: {
+        name: "DeepscanV2.exe",
+        hackLevelReq: 400,
+        postSingularity: false,
+    },
+    AutoLink: {
+        name: "AutoLink.exe",
+        hackLevelReq: 25,
+        postSingularity: false,
+    },
+    ServerProfiler: {
+        name: "ServerProfiler.exe",
+        hackLevelReq: 75,
+        postSingularity: false,
+    },
 
     // Removing until I find an actual use case
     // Formulas: { name: "Formulas.exe", hackLevelReq: 1000 },

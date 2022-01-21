@@ -104,6 +104,29 @@ export function getThreadCount(ns: NS): number {
 }
 
 /**
+ * Returns whether or not we have access to the Singularity functions.
+ * @param ns ns
+ * @returns True if we are in the Singularity.
+ */
+export function isPostSingularity(ns: NS): boolean {
+    const singularityBitNode = 4
+
+    // First check if we are in the Singularity BitNode, since it won't appear
+    // in the owned source files if we're in 4-1
+    if (ns.getPlayer().bitNodeN === singularityBitNode) {
+        return true
+    }
+
+    for (const sourceFile of ns.getOwnedSourceFiles()) {
+        if (sourceFile.n === singularityBitNode) {
+            return true
+        }
+    }
+
+    return false
+}
+
+/**
  * Returns whether or not we own the server (home or purchased).
  * @param {string} hostname The server's hostname.
  * @return True if we own the server.
