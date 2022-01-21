@@ -33,8 +33,15 @@ export async function main(ns: NS): Promise<void> {
         await ns.sleep(waitTime)
 
         for (;;) {
-            // If we're working for a faction, let's focus on that instead
-            if (ns.getPlayer().workType === WorkTypes.Factions) {
+            // If we're working for a faction that we can't donate to, let's
+            // focus on working for them instead
+            const player = ns.getPlayer()
+            const workType = player.workType
+            const faction = player.currentWorkFactionName
+            if (
+                workType === WorkTypes.Factions &&
+                ns.getFactionFavor(faction) < 150
+            ) {
                 await ns.share()
                 continue
             }
