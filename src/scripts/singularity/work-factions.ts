@@ -5,6 +5,13 @@ import { isWorking } from "/scripts/utils.js"
 const Factions = Constants.Factions
 const workType = Constants.WorkTypes.Factions
 
+interface IFactionToWork {
+    [key: string]: string | number
+    name: string
+    favor: number
+    repReq: number
+}
+
 /**
  * Work for a faction that we don't yet have enough rep with for all
  * of their augmentations.
@@ -12,9 +19,42 @@ const workType = Constants.WorkTypes.Factions
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    const ownedAugs = ns.getOwnedAugmentations(true)
+    let factions = getFactions(ns)
 
-    let factions = []
+    // Sort by least favor so we can improve our most needed factions first
+    // But sort by lowest reputation requirement first in the case of ties
+    factions = factions.sort((a, b) => a.repReq - b.repReq)
+    factions = factions.sort((a, b) => a.favor - b.favor)
+
+    const factionToWorkFor = { name: "", repReq: 0 }
+    for (const faction of factions) {
+        // If we don't have any faction rep, that means we aren't a member yet
+        if (
+            ns.getFactionRep(faction.name) > 0 &&
+            ns.getFactionRep(faction.name) < faction.repReq
+        ) {
+            factionToWorkFor.name = faction.name
+            factionToWorkFor.repReq = faction.repReq
+            break
+        }
+    }
+
+    if (factionToWorkFor.name != "") {
+        await workForFaction(ns, factionToWorkFor.name, factionToWorkFor.repReq)
+        return
+    }
+
+    // If we're still working for a faction when we don't need to, let's stop
+    // so we can do other actions.
+    if (ns.getPlayer().workType === workType) {
+        ns.stopAction()
+    }
+}
+
+function getFactions(ns: NS): IFactionToWork[] {
+    const ownedAugs = ns.getOwnedAugmentations(true)
+    const factions = []
+
     for (const key in Factions) {
         const faction = Factions[key]
 
@@ -48,33 +88,7 @@ export async function main(ns: NS): Promise<void> {
         })
     }
 
-    // Sort by least favor so we can improve our most needed factions first
-    // But sort by lowest reputation requirement first in the case of ties
-    factions = factions.sort((a, b) => a.repReq - b.repReq)
-    factions = factions.sort((a, b) => a.favor - b.favor)
-
-    const factionToWorkFor = { name: "", repReq: 0 }
-    for (const faction of factions) {
-        // If we don't have any faction rep, that means we aren't a member yet
-        if (
-            ns.getFactionRep(faction.name) > 0 &&
-            ns.getFactionRep(faction.name) < faction.repReq
-        ) {
-            factionToWorkFor.name = faction.name
-            factionToWorkFor.repReq = faction.repReq
-            break
-        }
-    }
-
-    if (factionToWorkFor.name != "") {
-        await workForFaction(ns, factionToWorkFor.name, factionToWorkFor.repReq)
-    }
-
-    // If we're still working for a faction when we don't need to, let's stop
-    // so we can do other actions.
-    if (ns.getPlayer().workType === workType) {
-        ns.stopAction()
-    }
+    return factions
 }
 
 /**
