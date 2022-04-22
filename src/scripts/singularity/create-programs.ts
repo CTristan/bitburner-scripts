@@ -1,6 +1,6 @@
 import { NS } from "@ns"
 import * as Constants from "/classes/constants.js"
-import { isPostSingularity, isWorking } from "/scripts/utils.js"
+import { isFocused, isPostSingularity, isWorking } from "/scripts/utils.js"
 
 const workType = Constants.WorkTypes.CreateProgram
 
@@ -27,13 +27,13 @@ export async function main(ns: NS): Promise<void> {
      */
     programs = programs.sort((a, b) => a.hackLevelReq - b.hackLevelReq)
 
-    const isFocused = ns.singularity.isFocused();
+    const focus = isFocused(ns, workType)
     let creatingProgram = false
     for (const program of programs) {
         if (
             !ns.fileExists(program.name) &&
             ns.getHackingLevel() >= program.hackLevelReq &&
-            ns.singularity.createProgram(program.name, isFocused)
+            ns.singularity.createProgram(program.name, focus)
         ) {
             creatingProgram = true
 

@@ -104,6 +104,20 @@ export function getThreadCount(ns: NS): number {
 }
 
 /**
+ * Checks if the player is currently focused and is working on the specified work type already.
+ * If they're focused but working on another work type then we want to focus on the new work type.
+ * 
+ * @param ns ns
+ * @param {string} workType The type of work we're going to start.
+ * @returns True if the player is focused and already working on the specified work type
+ */
+export function isFocused(ns: NS, workType: string): boolean {
+    const currentWorkType = ns.getPlayer().workType
+
+    return currentWorkType === workType && ns.singularity.isFocused()
+}
+
+/**
  * Returns whether or not we have access to the Singularity functions.
  * @param ns ns
  * @returns True if we are in the Singularity.

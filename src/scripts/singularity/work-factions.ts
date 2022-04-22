@@ -1,6 +1,6 @@
 import { NS } from "@ns"
 import * as Constants from "/classes/constants.js"
-import { isWorking } from "/scripts/utils.js"
+import { isFocused, isWorking } from "/scripts/utils.js"
 
 const Factions = Constants.Factions
 const workType = Constants.WorkTypes.Factions
@@ -106,11 +106,13 @@ async function workForFaction(
     rep = donateToFaction(ns, faction, repReq)
 
     if (rep < repReq) {
+        const focus = isFocused(ns, workType)
+
         if (
-            !ns.singularity.workForFaction(faction, "Hacking") &&
-            !ns.singularity.workForFaction(faction, "Field Work")
+            !ns.singularity.workForFaction(faction, "Hacking", focus) &&
+            !ns.singularity.workForFaction(faction, "Field Work", focus)
         ) {
-            ns.singularity.workForFaction(faction, "Security Work")
+            ns.singularity.workForFaction(faction, "Security Work", focus)
         }
 
         /**

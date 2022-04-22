@@ -1,7 +1,7 @@
 import { NS } from "@ns"
 import * as Constants from "/classes/constants.js"
 import { IPosition } from "/interfaces/iposition.js"
-import { isWorking } from "/scripts/utils.js"
+import { isFocused, isWorking } from "/scripts/utils.js"
 
 const Companies = Constants.Companies
 const workType = Constants.WorkTypes.Company
@@ -32,12 +32,13 @@ export async function main(ns: NS): Promise<void> {
     companies = companies.sort((a, b) => b.salaryMult - a.salaryMult)
     companies = companies.sort((a, b) => a.favor - b.favor)
 
+    const focus = isFocused(ns, workType)
     let companyToWorkFor = ""
     for (const company of companies) {
         if (
             ns.singularity.getCompanyRep(company.name) < company.repReq &&
             applyToCompany(ns, company.name, company.position) &&
-            ns.singularity.workForCompany(company.name)
+            ns.singularity.workForCompany(company.name, focus)
         ) {
             companyToWorkFor = company.name
             break
