@@ -1,6 +1,5 @@
 import { NS } from "@ns"
 import * as Constants from "/classes/constants.js"
-import { forceRunScript } from "/scripts/utils.js"
 
 const Factions = Constants.Factions
 
@@ -42,10 +41,10 @@ function purchasedGenericAugmentation(ns: NS): boolean {
 function checkFactionFavor(ns: NS): boolean {
     for (const key in Factions) {
         const faction = Factions[key]
-        const currentFavor = ns.getFactionFavor(faction.name)
+        const currentFavor = ns.singularity.getFactionFavor(faction.name)
 
         if (currentFavor < 150) {
-            const favorGain = ns.getFactionFavorGain(faction.name)
+            const favorGain = ns.singularity.getFactionFavorGain(faction.name)
 
             if (currentFavor + favorGain >= 150) {
                 return true
@@ -63,12 +62,12 @@ function checkFactionFavor(ns: NS): boolean {
  * @param ns
  */
 function checkPurchasedFactionAugs(ns: NS): boolean {
-    const ownedAugs = ns.getOwnedAugmentations(true)
+    const ownedAugs = ns.singularity.getOwnedAugmentations(true)
     const purchasedAugs = getPurchasedAugs(ns)
 
     for (const key in Factions) {
         const faction = Factions[key]
-        const factionAugs = ns.getAugmentationsFromFaction(faction.name)
+        const factionAugs = ns.singularity.getAugmentationsFromFaction(faction.name)
         const remainingFactionAugs = factionAugs.filter(
             (aug) => !ownedAugs.includes(aug)
         )
@@ -102,8 +101,8 @@ function checkPurchasedFactionAugs(ns: NS): boolean {
  * @returns
  */
 function getPurchasedAugs(ns: NS): string[] {
-    const ownedAugs = ns.getOwnedAugmentations(true)
-    const installedAugs = ns.getOwnedAugmentations()
+    const ownedAugs = ns.singularity.getOwnedAugmentations(true)
+    const installedAugs = ns.singularity.getOwnedAugmentations()
 
     // Purchased augmentations are ones that we have owned but aren't yet
     // installed.
@@ -143,9 +142,9 @@ function installAugmentations(ns: NS): void {
     if (getPurchasedAugs(ns).length > 0) {
         // BUG: Remove this when the "recovery mode when installing augmentations while working for faction"
         // bug is fixed.
-        ns.stopAction()
+        ns.singularity.stopAction()
 
-        ns.installAugmentations("first-run.js")
+        ns.singularity.installAugmentations("first-run.js")
     }
 }
 
@@ -156,10 +155,10 @@ function installAugmentations(ns: NS): void {
  * @param ns ns
  */
 function purchaseAllAugmentations(ns: NS): void {
-    let ownedAugs = ns.getOwnedAugmentations(true)
+    let ownedAugs = ns.singularity.getOwnedAugmentations(true)
     for (const key in Factions) {
         const faction = Factions[key]
-        const factionAugs = ns.getAugmentationsFromFaction(faction.name)
+        const factionAugs = ns.singularity.getAugmentationsFromFaction(faction.name)
 
         // Build a list of augs for the faction that we don't already own.
         let augs = []
@@ -168,7 +167,7 @@ function purchaseAllAugmentations(ns: NS): void {
 
             // If we don't already own the aug, let's add it to our list
             if (!ownedAugs.includes(augName)) {
-                const augCost = ns.getAugmentationPrice(augName)
+                const augCost = ns.singularity.getAugmentationPrice(augName)
                 augs.push({ cost: augCost, name: augName })
             }
         }
@@ -195,8 +194,8 @@ function purchaseAllAugmentations(ns: NS): void {
              * This way, we only ever attempt to purchase the most expensive aug from each faction and
              * not just end up buying the cheapest ones which increases the cost multiplier.
              */
-            if (ns.purchaseAugmentation(faction.name, augName)) {
-                ownedAugs = ns.getOwnedAugmentations(true)
+            if (ns.singularity.purchaseAugmentation(faction.name, augName)) {
+                ownedAugs = ns.singularity.getOwnedAugmentations(true)
             }
         }
     }
@@ -208,7 +207,7 @@ function purchaseAllAugmentations(ns: NS): void {
     const alwaysAvailableAug = Constants.AlwaysAvailableAugmentation
     for (const key in Factions) {
         const faction = Factions[key]
-        while (ns.purchaseAugmentation(faction.name, alwaysAvailableAug)) {
+        while (ns.singularity.purchaseAugmentation(faction.name, alwaysAvailableAug)) {
             // Purchase successful, do it again
         }
     }

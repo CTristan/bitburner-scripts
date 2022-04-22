@@ -18,7 +18,7 @@ export async function main(ns: NS): Promise<void> {
     const crimes = []
     for (const key in Constants.Crimes) {
         const crime = Constants.Crimes[key]
-        const crimeChance = ns.getCrimeChance(crime.name)
+        const crimeChance = ns.singularity.getCrimeChance(crime.name)
 
         crimes.push({
             chance: crimeChance,
@@ -50,7 +50,7 @@ export async function main(ns: NS): Promise<void> {
     }
 
     if (crimeToCommit.name != "") {
-        ns.commitCrime(crimeToCommit.name)
+        ns.singularity.commitCrime(crimeToCommit.name)
         await ns.sleep(crimeToCommit.time * 1000)
         ns.exit()
     }

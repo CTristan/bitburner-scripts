@@ -15,15 +15,15 @@ export async function main(ns: NS): Promise<void> {
     // Infinite loops need to be run sequentially
     /* eslint-disable no-await-in-loop */
     if (weakenOnly) {
-        for (;;) {
+        for (; ;) {
             await weakenServers(ns)
         }
     } else if (growOnly) {
-        for (;;) {
+        for (; ;) {
             await growServers(ns)
         }
     } else if (hackOnly) {
-        for (;;) {
+        for (; ;) {
             await hackServers(ns)
         }
     } else {
@@ -32,7 +32,7 @@ export async function main(ns: NS): Promise<void> {
         const waitTime = parseInt(ns.args[0].toString())
         await ns.sleep(waitTime)
 
-        for (;;) {
+        for (; ;) {
             // If we're working for a faction that we can't donate to, let's
             // focus on working for them instead
             const player = ns.getPlayer()
@@ -40,7 +40,7 @@ export async function main(ns: NS): Promise<void> {
             const faction = player.currentWorkFactionName
             if (
                 workType === WorkTypes.Factions &&
-                ns.getFactionFavor(faction) < 150
+                ns.singularity.getFactionFavor(faction) < 150
             ) {
                 await ns.share()
                 continue
@@ -102,10 +102,10 @@ async function findBestServer(ns: NS): Promise<string> {
                 if (moneyPerSecond > bestServer.moneyPerSecond) {
                     ns.print(
                         "New best server: " +
-                            server +
-                            " with $" +
-                            moneyPerSecond +
-                            " dps."
+                        server +
+                        " with $" +
+                        moneyPerSecond +
+                        " dps."
                     )
                     bestServer.name = server
                     bestServer.moneyPerSecond = moneyPerSecond
@@ -156,10 +156,10 @@ async function weakenServers(ns: NS): Promise<void> {
             if (securityLevel > strongestServer.securityLevel) {
                 ns.print(
                     "New strongest server: " +
-                        server +
-                        " with a security difference of " +
-                        securityLevel +
-                        "."
+                    server +
+                    " with a security difference of " +
+                    securityLevel +
+                    "."
                 )
                 strongestServer.name = server
                 strongestServer.securityLevel = securityLevel
@@ -206,10 +206,10 @@ async function growServers(ns: NS): Promise<void> {
             if (serverMoney > cheapestServer.money) {
                 ns.print(
                     "New cheapest server: " +
-                        server +
-                        " with a difference of $" +
-                        serverMoney +
-                        "."
+                    server +
+                    " with a difference of $" +
+                    serverMoney +
+                    "."
                 )
                 cheapestServer.name = server
                 cheapestServer.money = serverMoney

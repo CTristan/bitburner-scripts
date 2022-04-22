@@ -9,6 +9,6 @@ export async function main(ns: NS): Promise<number> {
     const hostname = ns.args[0].toString();
 
     connectTo(ns, hostname);
-    const money = await ns.manualHack();
+    const money = await ns.singularity.manualHack();
     return money;
 }

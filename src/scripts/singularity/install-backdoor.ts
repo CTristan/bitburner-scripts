@@ -12,7 +12,7 @@ export async function main(ns: NS): Promise<void> {
 
     if (!server.backdoorInstalled) {
         connectTo(ns, hostname);
-        await ns.installBackdoor();
+        await ns.singularity.installBackdoor();
     }
 
     /**

@@ -16,7 +16,7 @@ export async function main(ns: NS): Promise<void> {
     for (const key in Companies) {
         const company = Companies[key]
         companies.push({
-            favor: ns.getCompanyFavor(company.name),
+            favor: ns.singularity.getCompanyFavor(company.name),
             name: company.name,
             position: company.position,
             repReq: company.repReq,
@@ -35,9 +35,9 @@ export async function main(ns: NS): Promise<void> {
     let companyToWorkFor = ""
     for (const company of companies) {
         if (
-            ns.getCompanyRep(company.name) < company.repReq &&
+            ns.singularity.getCompanyRep(company.name) < company.repReq &&
             applyToCompany(ns, company.name, company.position) &&
-            ns.workForCompany(company.name)
+            ns.singularity.workForCompany(company.name)
         ) {
             companyToWorkFor = company.name
             break
@@ -53,7 +53,7 @@ export async function main(ns: NS): Promise<void> {
             .sort((a, b) => b.favor - a.favor)[0]
 
         if (
-            ns.getCompanyRep(company.name) < 800e3 &&
+            ns.singularity.getCompanyRep(company.name) < 800e3 &&
             applyToCompany(ns, company.name, Constants.Positions.Business)
         ) {
             companyToWorkFor = company.name
@@ -80,7 +80,7 @@ export async function main(ns: NS): Promise<void> {
     // If we're working for a company when we don't need to, let's stop so
     // that we can do other work.
     if (ns.getPlayer().workType === workType) {
-        ns.stopAction()
+        ns.singularity.stopAction()
     }
 }
 
@@ -100,7 +100,7 @@ function applyToCompany(
     // To avoid any race conditions, we'll make sure we've stopped work and
     // collected our rep before continuing on.
     if (ns.getPlayer().workType === workType) {
-        ns.stopAction()
+        ns.singularity.stopAction()
     }
 
     /**
@@ -108,7 +108,7 @@ function applyToCompany(
      * to avoid any potential false negatives when we apply for a job we
      * already have but don't qualify for a promotion.
      */
-    ns.applyToCompany(
+    ns.singularity.applyToCompany(
         Constants.Companies.FoodNStuff.name,
         Constants.Positions.PartTime.name
     )
@@ -123,9 +123,9 @@ function applyToCompany(
      * gained enough stats from crime, this will automatically pick up the
      * position we want since we'll have enough rep.
      */
-    if (ns.getCompanyRep(companyName) < companyPosition.repMin) {
-        return ns.applyToCompany(companyName, Constants.Positions.Software.name)
+    if (ns.singularity.getCompanyRep(companyName) < companyPosition.repMin) {
+        return ns.singularity.applyToCompany(companyName, Constants.Positions.Software.name)
     }
 
-    return ns.applyToCompany(companyName, companyPosition.name)
+    return ns.singularity.applyToCompany(companyName, companyPosition.name)
 }

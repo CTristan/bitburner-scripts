@@ -30,8 +30,8 @@ export async function main(ns: NS): Promise<void> {
     for (const faction of factions) {
         // If we don't have any faction rep, that means we aren't a member yet
         if (
-            ns.getFactionRep(faction.name) > 0 &&
-            ns.getFactionRep(faction.name) < faction.repReq
+            ns.singularity.getFactionRep(faction.name) > 0 &&
+            ns.singularity.getFactionRep(faction.name) < faction.repReq
         ) {
             factionToWorkFor.name = faction.name
             factionToWorkFor.repReq = faction.repReq
@@ -47,12 +47,12 @@ export async function main(ns: NS): Promise<void> {
     // If we're still working for a faction when we don't need to, let's stop
     // so we can do other actions.
     if (ns.getPlayer().workType === workType) {
-        ns.stopAction()
+        ns.singularity.stopAction()
     }
 }
 
 function getFactions(ns: NS): IFactionToWork[] {
-    const ownedAugs = ns.getOwnedAugmentations(true)
+    const ownedAugs = ns.singularity.getOwnedAugmentations(true)
     const factions = []
 
     for (const key in Factions) {
@@ -62,13 +62,11 @@ function getFactions(ns: NS): IFactionToWork[] {
          * We want to get the required rep based off of the augmentations
          * that we don't own already
          */
-        const augs = ns
-            .getAugmentationsFromFaction(faction.name)
-            .filter((aug) => !ownedAugs.includes(aug))
+        const augs = ns.singularity.getAugmentationsFromFaction(faction.name).filter((aug) => !ownedAugs.includes(aug))
 
         let highestRepReq = 0
         for (const aug of augs) {
-            const repReq = ns.getAugmentationRepReq(aug)
+            const repReq = ns.singularity.getAugmentationRepReq(aug)
             highestRepReq = Math.max(highestRepReq, repReq)
         }
 
@@ -78,8 +76,8 @@ function getFactions(ns: NS): IFactionToWork[] {
          * include how much favor we've gained so far in our sorting.
          */
         const favor =
-            ns.getFactionFavor(faction.name) +
-            ns.getFactionFavorGain(faction.name)
+            ns.singularity.getFactionFavor(faction.name) +
+            ns.singularity.getFactionFavorGain(faction.name)
 
         factions.push({
             favor: favor,
@@ -102,17 +100,17 @@ async function workForFaction(
     faction: string,
     repReq: number
 ): Promise<void> {
-    let rep = ns.getFactionRep(faction)
+    let rep = ns.singularity.getFactionRep(faction)
 
     // First try donating money to increase rep the fastest
     rep = donateToFaction(ns, faction, repReq)
 
     if (rep < repReq) {
         if (
-            !ns.workForFaction(faction, "Hacking") &&
-            !ns.workForFaction(faction, "Field Work")
+            !ns.singularity.workForFaction(faction, "Hacking") &&
+            !ns.singularity.workForFaction(faction, "Field Work")
         ) {
-            ns.workForFaction(faction, "Security Work")
+            ns.singularity.workForFaction(faction, "Security Work")
         }
 
         /**
@@ -138,8 +136,8 @@ async function workForFaction(
  * @param {NS} ns
  */
 function donateToFaction(ns: NS, faction: string, repReq: number): number {
-    const favor = ns.getFactionFavor(faction)
-    let rep = ns.getFactionRep(faction)
+    const favor = ns.singularity.getFactionFavor(faction)
+    let rep = ns.singularity.getFactionRep(faction)
 
     if (favor >= 150) {
         const repDifference = repReq - rep
@@ -153,9 +151,9 @@ function donateToFaction(ns: NS, faction: string, repReq: number): number {
          * donationAmount = reputation * 10e6 / reputationMultiplier
          */
         const donationAmount = Math.ceil((repDifference * 10e6) / repMultiplier)
-        ns.donateToFaction(faction, donationAmount)
+        ns.singularity.donateToFaction(faction, donationAmount)
 
-        rep = ns.getFactionRep(faction)
+        rep = ns.singularity.getFactionRep(faction)
     }
 
     return rep

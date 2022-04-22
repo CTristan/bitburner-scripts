@@ -7,7 +7,7 @@ import { NS } from "@ns"
  * @returns True if we were able to connect to the server.
  */
 export function connectTo(ns: NS, server: string, parentServer = ""): boolean {
-    const hostname = ns.getCurrentServer()
+    const hostname = ns.singularity.getCurrentServer()
 
     if (hostname === server) {
         return true
@@ -22,14 +22,14 @@ export function connectTo(ns: NS, server: string, parentServer = ""): boolean {
         const currentServer = servers[i]
 
         if (currentServer != parentServer) {
-            ns.connect(currentServer)
+            ns.singularity.connect(currentServer)
             if (connectTo(ns, server, hostname)) {
                 return true
             }
         }
     }
 
-    ns.connect(parentServer)
+    ns.singularity.connect(parentServer)
     return false
 }
 
@@ -67,8 +67,8 @@ export async function forceRunScript(
     if (scriptRam > serverMaxRam * 0.2) {
         ns.print(
             `Will not run script ${script} because it requires ` +
-                `${scriptRam}GB which is more than 20% of the ${serverMaxRam}GB ` +
-                `available on ${server}`
+            `${scriptRam}GB which is more than 20% of the ${serverMaxRam}GB ` +
+            `available on ${server}`
         )
         return false
     }
@@ -100,7 +100,7 @@ export function getThreadCount(ns: NS): number {
     const scriptName = ns.getScriptName()
     const runningScript = ns.getRunningScript(scriptName, serverName)
 
-    return runningScript.threads
+    return runningScript ? runningScript.threads : 0
 }
 
 /**

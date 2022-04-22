@@ -27,14 +27,19 @@ export async function main(ns: NS): Promise<void> {
      */
     programs = programs.sort((a, b) => a.hackLevelReq - b.hackLevelReq)
 
+    const isFocused = ns.singularity.isFocused();
     let creatingProgram = false
     for (const program of programs) {
         if (
             !ns.fileExists(program.name) &&
             ns.getHackingLevel() >= program.hackLevelReq &&
-            ns.createProgram(program.name)
+            ns.singularity.createProgram(program.name, isFocused)
         ) {
             creatingProgram = true
+
+            // Small sleep to prevent blocking progress by advancing too quickly
+            await ns.sleep(2100)
+
             break
         }
     }
@@ -44,6 +49,6 @@ export async function main(ns: NS): Promise<void> {
      * let's stop that
      */
     if (!creatingProgram && isWorking(ns, workType)) {
-        ns.stopAction()
+        ns.singularity.stopAction()
     }
 }

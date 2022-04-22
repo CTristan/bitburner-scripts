@@ -13,10 +13,10 @@ const Factions = Constants.Factions
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("getServerMoneyAvailable")
 
-    let ownedAugs = ns.getOwnedAugmentations(true)
+    let ownedAugs = ns.singularity.getOwnedAugmentations(true)
     for (const key in Factions) {
         const faction = Factions[key]
-        const factionAugs = ns.getAugmentationsFromFaction(faction.name)
+        const factionAugs = ns.singularity.getAugmentationsFromFaction(faction.name)
 
         // Build a list of augs for the faction that we don't already own.
         let augs = []
@@ -25,7 +25,7 @@ export async function main(ns: NS): Promise<void> {
 
             // If we don't already own the aug, let's add it to our list
             if (!ownedAugs.includes(augName)) {
-                const augCost = ns.getAugmentationPrice(augName)
+                const augCost = ns.singularity.getAugmentationPrice(augName)
                 augs.push({ cost: augCost, name: augName })
             }
         }
@@ -41,7 +41,7 @@ export async function main(ns: NS): Promise<void> {
          * try to buy the always available one
          */
         if (augs.length === 0) {
-            ns.purchaseAugmentation(
+            ns.singularity.purchaseAugmentation(
                 faction.name,
                 Constants.AlwaysAvailableAugmentation
             )
@@ -60,16 +60,16 @@ export async function main(ns: NS): Promise<void> {
              * from each faction and not just end up buying the cheapest ones
              * which increases the cost multiplier.
              */
-            if (ns.purchaseAugmentation(faction.name, augName)) {
-                ownedAugs = ns.getOwnedAugmentations(true)
+            if (ns.singularity.purchaseAugmentation(faction.name, augName)) {
+                ownedAugs = ns.singularity.getOwnedAugmentations(true)
             } else {
                 /**
                  * Special case where the most expensive augmentation requires a
                  * lower tier version
                  */
-                const rep = ns.getFactionRep(faction.name)
-                const repReq = ns.getAugmentationRepReq(augName)
-                const augPrice = ns.getAugmentationPrice(augName)
+                const rep = ns.singularity.getFactionRep(faction.name)
+                const repReq = ns.singularity.getAugmentationRepReq(augName)
+                const augPrice = ns.singularity.getAugmentationPrice(augName)
                 const availableMoney = ns.getServerMoneyAvailable("home")
 
                 if (rep >= repReq && availableMoney >= augPrice) {

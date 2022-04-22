@@ -9,7 +9,7 @@ import { isPostSingularity } from "/scripts/utils"
  */
 // eslint-disable-next-line require-await
 export async function main(ns: NS): Promise<void> {
-    ns.purchaseTor()
+    ns.singularity.purchaseTor()
     for (const key in Constants.Programs) {
         const program = Constants.Programs[key]
 
@@ -17,6 +17,6 @@ export async function main(ns: NS): Promise<void> {
             continue
         }
 
-        ns.purchaseProgram(program.name)
+        ns.singularity.purchaseProgram(program.name)
     }
 }

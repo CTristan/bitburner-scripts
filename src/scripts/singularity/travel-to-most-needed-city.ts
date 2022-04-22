@@ -18,7 +18,7 @@ export async function main(ns: NS): Promise<void> {
 
     for (const key in Constants.Cities) {
         const cityName = Constants.Cities[key]
-        const cityFavor = ns.getFactionFavor(cityName)
+        const cityFavor = ns.singularity.getFactionFavor(cityName)
 
         if (cityFavor < favor) {
             city = cityName
@@ -32,7 +32,7 @@ export async function main(ns: NS): Promise<void> {
 }
 
 function hasFactionRep(ns: NS, faction: string): boolean {
-    return ns.getFactionRep(faction) > 0
+    return ns.singularity.getFactionRep(faction) > 0
 }
 
 function hasJoinedEnemyFaction(ns: NS, enemies: string[]): boolean {
@@ -67,7 +67,7 @@ async function joinAllCityFactions(ns: NS, currentCity: string): Promise<void> {
             factions.push({
                 cities: faction.cities,
                 enemies: faction.enemies,
-                favor: ns.getFactionFavor(faction.name),
+                favor: ns.singularity.getFactionFavor(faction.name),
                 name: faction.name,
             })
         }
@@ -145,7 +145,7 @@ async function travelToCity(ns: NS, city: string): Promise<string> {
     let travelled = false
     while (!travelled) {
         try {
-            travelled = ns.travelToCity(city)
+            travelled = ns.singularity.travelToCity(city)
         } catch {
             travelled = false
         } finally {

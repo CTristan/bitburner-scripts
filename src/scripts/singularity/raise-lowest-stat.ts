@@ -58,7 +58,7 @@ export async function main(ns: NS): Promise<void> {
         }
 
         if (crimeStatGain > 0) {
-            const crimeChance = ns.getCrimeChance(crime.name);
+            const crimeChance = ns.singularity.getCrimeChance(crime.name);
 
             crimes.push({
                 name: crime.name,
@@ -74,6 +74,6 @@ export async function main(ns: NS): Promise<void> {
     crimes = crimes.sort((a, b) => b.profitability - a.profitability);
     crimes = crimes.sort((a, b) => b.statGain - a.statGain);
 
-    ns.commitCrime(crimes[0].name);
+    ns.singularity.commitCrime(crimes[0].name);
     await ns.sleep(crimes[0].time);
 }

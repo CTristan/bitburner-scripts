@@ -8,7 +8,7 @@ import { forceRunScript } from "/scripts/utils.js";
  */
 export async function main(ns: NS): Promise<void> {
     // Make sure we're always using the most RAM available
-    if (ns.upgradeHomeRam()) {
+    if (ns.singularity.upgradeHomeRam()) {
         ns.kill("hack-the-planet.js", "home");
         ns.exec("hack-the-planet.js", "home");
         await forceRunScript(ns, "/scripts/worm.js", "home", true);
