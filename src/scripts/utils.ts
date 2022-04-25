@@ -114,7 +114,7 @@ export function getThreadCount(ns: NS): number {
 export function isFocused(ns: NS, workType: string): boolean {
     const currentWorkType = ns.getPlayer().workType
 
-    return currentWorkType === workType && ns.singularity.isFocused()
+    return currentWorkType !== workType || ns.singularity.isFocused()
 }
 
 /**

@@ -25,7 +25,7 @@ export async function main(ns: NS): Promise<void> {
 
     // Since this is an infinite loop, we want to run everything sequentially.
     /* eslint-disable no-await-in-loop */
-    for (;;) {
+    for (; ;) {
         // Get how much we've earned so far
         const serverMoneyEarned = getServerMoneyEarned(ns)
         const hacknetMoneyEarned = getHacknetMoneyEarned(ns)
@@ -133,7 +133,7 @@ async function upgradeServers(
     expenseFile: string
 ): Promise<boolean> {
     // We only want servers with enough ram to run our batching scripts
-    let ram = 4
+    let ram = 8
     ns.print(`Using ${availableFunds} for server upgrades.`)
 
     const servers = ns.getPurchasedServers()

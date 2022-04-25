@@ -11,15 +11,19 @@ export async function main(ns: NS): Promise<void> {
     disableLogs(ns)
 
     // The script name to infect every server with.
-    const scripts = ["/scripts/loop.js"]
+    const scripts = [
+        "/scripts/loop.js",
+        "/scripts/hack/hack.js",
+        "/scripts/hack/grow.js",
+        "/scripts/hack/weaken.js"
+    ]
 
     // Infect all servers, including purchased servers.
     const servers = scanForAllServers(ns, true)
 
-    let scriptNumber = 0
     for (const server of servers) {
         // If we force a script update, we don't want to kill home as well
-        if (forceScriptUpdate && server != "home") {
+        if (forceScriptUpdate && server !== "home") {
             ns.killall(server)
         }
 
@@ -27,7 +31,7 @@ export async function main(ns: NS): Promise<void> {
 
         // Script number must be sequentially assigned
         // eslint-disable-next-line no-await-in-loop
-        scriptNumber = await hackServer(ns, server, scripts, scriptNumber)
+        await hackServer(ns, server, scripts);
     }
 }
 
@@ -38,75 +42,22 @@ export async function main(ns: NS): Promise<void> {
  * @param hostname The server to hack.
  * @param scripts The payload. The first script in the list MUST be the main
  * script coordinator.
- * @param scriptNumber How many scripts we've deployed so far. Needed for
- * timing the botnet.
  * @returns The script number of the last script executed.
  * **/
 export async function hackServer(
     ns: NS,
     hostname: string,
-    scripts: string[],
-    scriptNumber: number
-): Promise<number> {
+    scripts: string[]
+): Promise<void> {
     // Root the server before infecting it
     const server = ns.getServer(hostname)
     await rootServer(ns, server)
 
-    /**
-     * We need to make sure there's enough memory, so we'll skip any servers
-     * that don't have enough RAM. We'll only use 70% of our home server.
-     */
-    const ramMult = server.hostname === "home" ? 0.7 : 1
-    const serverMaxRam = ns.getServerMaxRam(hostname) * ramMult
-
-    const scpTasks = []
-    let scriptsRam = 0
     for (const script of scripts) {
-        scriptsRam += ns.getScriptRam(script)
-        scpTasks.push(ns.scp(script, "home", hostname))
-    }
-    await Promise.all(scpTasks)
-
-    if (serverMaxRam < scriptsRam) {
-        return scriptNumber
+        await ns.scp(script, "home", hostname)
     }
 
-    // Make sure we don't clog up the server with hundreds of processes
-    const maxProcesses = 99
-    let threads = Math.max(
-        Math.ceil(serverMaxRam / scriptsRam / maxProcesses),
-        1
-    )
-
-    let serverUsedRam = ns.getServerUsedRam(hostname)
-    let serverRam = serverMaxRam - serverUsedRam
-
-    while (serverRam > scriptsRam) {
-        /**
-         * Need to check for failed exec due to out of RAM to prevent infinite
-         * loop. Usually happens on the last instance where there's still
-         * available RAM but not enough for the full number of threads.
-         */
-        let processId = ns.exec(scripts[0], hostname, threads, scriptNumber)
-        while (processId === 0) {
-            threads--
-
-            if (threads <= 0) {
-                return scriptNumber
-            }
-
-            processId = ns.exec(scripts[0], hostname, threads, scriptNumber)
-        }
-
-        scriptNumber++
-        serverUsedRam = ns.getServerUsedRam(hostname)
-        serverRam = serverMaxRam - serverUsedRam
-
-        // Small sleep to prevent GUI freezing up
-        await ns.asleep(1)
-    }
-
-    return scriptNumber
+    ns.exec(scripts[0], hostname, 1);
 }
 
 async function rootServer(ns: NS, server: Server): Promise<void> {
@@ -133,7 +84,7 @@ async function rootServer(ns: NS, server: Server): Promise<void> {
         // Make sure we can actually hack this server
         if (
             ns.getServerRequiredHackingLevel(server.hostname) >
-                ns.getHackingLevel() ||
+            ns.getHackingLevel() ||
             requiredPorts > openablePorts
         ) {
             ns.print(server.hostname + " is not currently rootable. Skipping.")

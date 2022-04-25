@@ -1,79 +1,117 @@
 import { NS } from "@ns"
-import { WorkTypes } from "/classes/constants"
-import { runScript, scanForAllServers } from "/scripts/utils.js"
+import { scanForAllServers } from "/scripts/utils.js"
 
 /**
- * Looping hack/weaken/grow/weaken cycle for either the current server or the best server available.
+ * Preps the server, runs hack/grow/weaken scripts, then either loops hacking
+ * or continuously finds the best server for the HGW scripts to attack.
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    const weakenOnly = ns.args[0] == "weaken"
-    const growOnly = ns.args[0] == "grow"
-    const hackOnly = ns.args[0] == "hack"
     disableLogs(ns)
 
-    // Infinite loops need to be run sequentially
-    /* eslint-disable no-await-in-loop */
-    if (weakenOnly) {
+    // Start with the current server
+    const host = ns.getHostname();
+    await ns.write("host.txt", host, "w");
+
+    // Start up all of the scripts
+    startScripts(ns, host);
+
+    // From now on we either hack or find the best server depending on if this server has any money.
+    if (ns.getServerMaxMoney(host) > 0) {
         for (; ;) {
-            await weakenServers(ns)
-        }
-    } else if (growOnly) {
-        for (; ;) {
-            await growServers(ns)
-        }
-    } else if (hackOnly) {
-        for (; ;) {
-            await hackServers(ns)
+            await ns.hack(host);
+            await ns.grow(host);
+            await ns.weaken(host);
         }
     } else {
-        // TODO: Set sleep timer for botnet
-        // We want to space out the loops so they don't all attack the same server at the exact same time
-        const waitTime = parseInt(ns.args[0].toString())
-        await ns.sleep(waitTime)
-
         for (; ;) {
-            // If we're working for a faction that we can't donate to, let's
-            // focus on working for them instead
-            const player = ns.getPlayer()
-            const workType = player.workType
-            const faction = player.currentWorkFactionName
-            if (
-                workType === WorkTypes.Factions &&
-                ns.singularity.getFactionFavor(faction) < 150
-            ) {
-                await ns.share()
-                continue
+            const oldServerToHack = await ns.read("host.txt");
+            const serverToHack = await findBestServer(ns);
+            if (serverToHack !== oldServerToHack) {
+                await ns.write("host.txt", serverToHack, "w");
             }
 
-            // No args, so we'll loop HWGW.
-            const server = await findBestServer(ns)
-
-            // Because multiple scripts might attack the same server, we'll have sanity checks at each step.
-            let moneyAvailable = ns.getServerMoneyAvailable(server)
-            if (moneyAvailable > 0) {
-                await ns.hack(server)
-            }
-
-            const minSecurityLevel = ns.getServerMinSecurityLevel(server)
-            let securityLevel = ns.getServerSecurityLevel(server)
-            if (securityLevel > minSecurityLevel) {
-                await ns.weaken(server)
-            }
-
-            const maxMoney = ns.getServerMaxMoney(server)
-            moneyAvailable = ns.getServerMoneyAvailable(server)
-            if (moneyAvailable < maxMoney) {
-                await ns.grow(server)
-            }
-
-            securityLevel = ns.getServerSecurityLevel(server)
-            if (securityLevel > minSecurityLevel) {
-                await ns.weaken(server)
-            }
+            // Weaken always takes the longest, so this will let all of the
+            // scripts run for at least one cycle
+            await ns.weaken(serverToHack);
         }
     }
-    /* eslint-enable no-await-in-loop */
+}
+
+/**
+ * Start the hack/grow/weaken scripts to fill up the server.
+ * Uses a ratio of 1 weaken : 1 hack : 12 grow.
+ * It takes 1 weaken command to counteract 12.5 grow commands,
+ * so a weaken will handle 12 grows and 1 hack.
+ * 
+ * TODO: Monitor and re-evaluate to see if this holds true on every server.
+ */
+function startScripts(ns: NS, host: string) {
+    // Make sure we don't clog up the server with hundreds of processes
+    const maxProcesses = 99
+    const scriptsRam = ns.getScriptRam("/scripts/hack/weaken.js");
+    let serverMaxRam = ns.getServerMaxRam(host);
+
+    // If we're on home, then we'll set our max ram to only use our available RAM 
+    // and save 20% of that for new processes.
+    if (host === "home") {
+        serverMaxRam = (serverMaxRam - ns.getServerUsedRam(host)) * 0.8;
+    }
+
+    let threads = Math.max(
+        Math.ceil(serverMaxRam / scriptsRam / maxProcesses),
+        1
+    )
+
+    let serverUsedRam = ns.getServerUsedRam(host)
+    let serverRam = serverMaxRam - serverUsedRam
+
+    let scriptNumber = 0;
+    while (serverRam > scriptsRam) {
+        const scriptToRun = getScriptToRun(ns, scriptNumber);
+        /**
+         * Need to check for failed exec due to out of RAM to prevent infinite
+         * loop. Usually happens on the last instance where there's still
+         * available RAM but not enough for the full number of threads.
+         */
+        let processId = ns.run(scriptToRun, threads, scriptNumber)
+        while (processId === 0) {
+            threads--
+
+            if (threads <= 0) {
+                return
+            }
+
+            processId = ns.run(scriptToRun, threads, scriptNumber)
+        }
+
+        scriptNumber++
+        serverUsedRam = ns.getServerUsedRam(host)
+        serverRam = serverMaxRam - serverUsedRam
+    }
+}
+
+function getScriptToRun(ns: NS, scriptNumber: number): string {
+    const hackScript = "/scripts/hack/hack.js";
+    const growScript = "/scripts/hack/grow.js";
+    const weakenScript = "/scripts/hack/weaken.js";
+
+    // Uses a ratio of 1 weaken : 1 hack : 12 grow.
+    const totalScripts = 14;
+    switch (scriptNumber % totalScripts) {
+        // First script is always grow since main script becomes a hack script
+        case 0:
+            return growScript;
+        // Second script is always weaken
+        case 1:
+            return weakenScript;
+        // Third script is always hack
+        case 2:
+            return hackScript;
+        // Last 11 scripts are grow
+        default:
+            return growScript;
+    }
 }
 
 /**
@@ -116,120 +154,12 @@ async function findBestServer(ns: NS): Promise<string> {
         // Most likely reason we don't have a best server yet is that the worm
         // either hasn't finished or needs to run.
         if (bestServer.name === "") {
-            ns.print("Not able to find any hackable servers, running worm.")
-            runScript(ns, "/scripts/worm.js")
+            ns.print("Not able to find any hackable servers, retrying.")
             await ns.sleep(1000)
         }
     }
 
     return bestServer.name
-}
-
-/**
- * Finds the server with the largest gap between minimum security level and current security level,
- * then weakens them.
- * @param {NS} ns
- */
-async function weakenServers(ns: NS): Promise<void> {
-    // Get all of the reachable servers
-    ns.print("About to scan for all servers.")
-    const servers = scanForAllServers(ns)
-    const strongestServer = {
-        name: "",
-        securityLevel: 0,
-    }
-
-    // Start at 1 to skip the first server, which is always home
-    for (let i = 1; i < servers.length; i++) {
-        const server = servers[i]
-
-        // Make sure we can actually hack it
-        if (ns.hasRootAccess(server)) {
-            /**
-             * Subtract the min security level to get the widest gap, since we
-             * don't want to weaken a server that is at or close to its
-             * minimum security level.
-             */
-            const securityLevel =
-                ns.getServerSecurityLevel(server) -
-                ns.getServerMinSecurityLevel(server)
-            if (securityLevel > strongestServer.securityLevel) {
-                ns.print(
-                    "New strongest server: " +
-                    server +
-                    " with a security difference of " +
-                    securityLevel +
-                    "."
-                )
-                strongestServer.name = server
-                strongestServer.securityLevel = securityLevel
-            }
-        }
-    }
-
-    // Weaken the strongest server
-    if (strongestServer.name != "") {
-        const server = strongestServer.name
-        await ns.weaken(server)
-    } else {
-        // Protection against infinite loop
-        await ns.sleep(1000)
-    }
-}
-
-/**
- * Finds the server with the largest gap between available money and maximum money, then grows it.
- * @param {NS} ns
- */
-async function growServers(ns: NS): Promise<void> {
-    // Get all of the reachable servers
-    ns.print("About to scan for all servers.")
-    const servers = scanForAllServers(ns)
-    const cheapestServer = {
-        money: 0,
-        name: "",
-    }
-
-    // Start at 1 to skip the first server, which is always home
-    for (let i = 1; i < servers.length; i++) {
-        const server = servers[i]
-        // Make sure we can actually hack it
-        if (ns.hasRootAccess(server)) {
-            /**
-             * Subtract the available money from the maximum amount of money to
-             * get the widest gap, since we don't want to grow a server that is
-             * at or close to its maximum funds.
-             */
-            const serverMoney =
-                ns.getServerMaxMoney(server) -
-                ns.getServerMoneyAvailable(server)
-            if (serverMoney > cheapestServer.money) {
-                ns.print(
-                    "New cheapest server: " +
-                    server +
-                    " with a difference of $" +
-                    serverMoney +
-                    "."
-                )
-                cheapestServer.name = server
-                cheapestServer.money = serverMoney
-            }
-        }
-    }
-
-    // Grow the cheapest server
-    if (cheapestServer.name != "") {
-        const server = cheapestServer.name
-        await ns.grow(server)
-    } else {
-        // Protection against infinite loop
-        await ns.sleep(1000)
-    }
-}
-
-async function hackServers(ns: NS): Promise<number> {
-    const server = await findBestServer(ns)
-    return await ns.hack(server)
 }
 
 function disableLogs(ns: NS): void {

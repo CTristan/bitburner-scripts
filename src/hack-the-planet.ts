@@ -30,7 +30,7 @@ export async function main(ns: NS): Promise<void> {
 
     // Since this is an infinite loop, we want to run sequentially
     /* eslint-disable no-await-in-loop */
-    for (;;) {
+    for (; ;) {
         // Root any servers we can hack
         runScript(ns, "/scripts/worm.js")
 
@@ -54,10 +54,10 @@ export async function main(ns: NS): Promise<void> {
                 if (dollarsPerSecond > bestServer.dollarsPerSecond) {
                     ns.print(
                         "New best server: " +
-                            server +
-                            " with $" +
-                            dollarsPerSecond +
-                            " dps."
+                        server +
+                        " with $" +
+                        dollarsPerSecond +
+                        " dps."
                     )
                     bestServer.name = server
                     bestServer.dollarsPerSecond = dollarsPerSecond
