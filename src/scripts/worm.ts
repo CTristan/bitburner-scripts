@@ -15,7 +15,7 @@ export async function main(ns: NS): Promise<void> {
         "/scripts/loop.js",
         "/scripts/hack/hack.js",
         "/scripts/hack/grow.js",
-        "/scripts/hack/weaken.js"
+        "/scripts/hack/weaken.js",
     ]
 
     // Infect all servers, including purchased servers.
@@ -28,10 +28,7 @@ export async function main(ns: NS): Promise<void> {
         }
 
         ns.print("About to infect " + server)
-
-        // Script number must be sequentially assigned
-        // eslint-disable-next-line no-await-in-loop
-        await hackServer(ns, server, scripts);
+        await hackServer(ns, server, scripts)
     }
 }
 
@@ -57,7 +54,7 @@ export async function hackServer(
         await ns.scp(script, "home", hostname)
     }
 
-    ns.exec(scripts[0], hostname, 1);
+    ns.exec(scripts[0], hostname, 1)
 }
 
 async function rootServer(ns: NS, server: Server): Promise<void> {
@@ -84,7 +81,7 @@ async function rootServer(ns: NS, server: Server): Promise<void> {
         // Make sure we can actually hack this server
         if (
             ns.getServerRequiredHackingLevel(server.hostname) >
-            ns.getHackingLevel() ||
+                ns.getHackingLevel() ||
             requiredPorts > openablePorts
         ) {
             ns.print(server.hostname + " is not currently rootable. Skipping.")
