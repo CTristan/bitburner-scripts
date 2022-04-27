@@ -16,7 +16,9 @@ export async function main(ns: NS): Promise<void> {
     let ownedAugs = ns.singularity.getOwnedAugmentations(true)
     for (const key in Factions) {
         const faction = Factions[key]
-        const factionAugs = ns.singularity.getAugmentationsFromFaction(faction.name)
+        const factionAugs = ns.singularity.getAugmentationsFromFaction(
+            faction.name
+        )
 
         // Build a list of augs for the faction that we don't already own.
         let augs = []
@@ -60,6 +62,10 @@ export async function main(ns: NS): Promise<void> {
              * from each faction and not just end up buying the cheapest ones
              * which increases the cost multiplier.
              */
+            const repReq = ns.singularity.getAugmentationRepReq(augName)
+            await ns.print(
+                `Attempting to purchase ${augName} from ${faction.name} which requries ${repReq} reputation.`
+            )
             if (ns.singularity.purchaseAugmentation(faction.name, augName)) {
                 ownedAugs = ns.singularity.getOwnedAugmentations(true)
             } else {
@@ -68,7 +74,6 @@ export async function main(ns: NS): Promise<void> {
                  * lower tier version
                  */
                 const rep = ns.singularity.getFactionRep(faction.name)
-                const repReq = ns.singularity.getAugmentationRepReq(augName)
                 const augPrice = ns.singularity.getAugmentationPrice(augName)
                 const availableMoney = ns.getServerMoneyAvailable("home")
 

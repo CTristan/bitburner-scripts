@@ -2,19 +2,23 @@ import { NS } from "@ns"
 import * as Constants from "/classes/constants.js"
 
 const Factions = Constants.Factions
+const LogFile = "install-augs-log.txt"
 
 /**
  * Runs checks to validate whether we should install augmentations
  * now and restart.
  *
+ * Must meet one of the following requirements:
+ * 1. All augmentations for at least one faction were purchased during this session
+ * 2. Installing would push a faction's favor past the donation threshold
+ *
  * @param {NS} ns
  */
 export async function main(ns: NS): Promise<void> {
-    if (
-        purchasedGenericAugmentation(ns) ||
-        checkFactionFavor(ns) ||
-        checkPurchasedFactionAugs(ns)
-    ) {
+    const shouldRestartToDonate =
+        purchasedGenericAugmentation(ns) && (await checkFactionFavor(ns))
+
+    if ((await purchasedAllAugsFromFaction(ns)) || shouldRestartToDonate) {
         await installAugmentations(ns)
     }
 }
@@ -33,26 +37,33 @@ function purchasedGenericAugmentation(ns: NS): boolean {
     return getPurchasedAugs(ns).includes(Constants.AlwaysAvailableAugmentation)
 }
 /**
- * Checks if installing would push a faction's favor past
- * the donation threshold.
+ * Checks if either installing would push a faction's favor past
+ * the donation threshold or if all factions can already be donated to.
  *
  * @param {NS} ns
  */
-function checkFactionFavor(ns: NS): boolean {
+async function checkFactionFavor(ns: NS): Promise<boolean> {
+    let allFactionsCompleted = true
+
     for (const key in Factions) {
         const faction = Factions[key]
         const currentFavor = ns.singularity.getFactionFavor(faction.name)
 
         if (currentFavor < 150) {
+            allFactionsCompleted = false
             const favorGain = ns.singularity.getFactionFavorGain(faction.name)
 
             if (currentFavor + favorGain >= 150) {
+                await ns.write(
+                    LogFile,
+                    `Installing because ${faction.name} has ${currentFavor} favor and will gain ${currentFavor} favor after installing.`
+                )
                 return true
             }
         }
     }
 
-    return false
+    return allFactionsCompleted
 }
 
 /**
@@ -61,13 +72,18 @@ function checkFactionFavor(ns: NS): boolean {
  *
  * @param ns
  */
-function checkPurchasedFactionAugs(ns: NS): boolean {
+async function purchasedAllAugsFromFaction(ns: NS): Promise<boolean> {
+    // Make sure we don't include the generic augmentation in our list of purchased augs.
+    const purchasedAugs = getPurchasedAugs(ns).filter(
+        (aug) => aug !== Constants.AlwaysAvailableAugmentation
+    )
     const ownedAugs = ns.singularity.getOwnedAugmentations(true)
-    const purchasedAugs = getPurchasedAugs(ns)
 
     for (const key in Factions) {
         const faction = Factions[key]
-        const factionAugs = ns.singularity.getAugmentationsFromFaction(faction.name)
+        const factionAugs = ns.singularity.getAugmentationsFromFaction(
+            faction.name
+        )
         const remainingFactionAugs = factionAugs.filter(
             (aug) => !ownedAugs.includes(aug)
         )
@@ -84,6 +100,10 @@ function checkPurchasedFactionAugs(ns: NS): boolean {
                      * If we have a purchased augmentation from the faction and they have
                      * no more remaining then we want to install them
                      */
+                    await ns.write(
+                        LogFile,
+                        `Installing because we have purchased all augs from ${faction.name}. Augs purchased: ${purchasedAugs}`
+                    )
                     return true
                 }
             }
@@ -158,7 +178,9 @@ function purchaseAllAugmentations(ns: NS): void {
     let ownedAugs = ns.singularity.getOwnedAugmentations(true)
     for (const key in Factions) {
         const faction = Factions[key]
-        const factionAugs = ns.singularity.getAugmentationsFromFaction(faction.name)
+        const factionAugs = ns.singularity.getAugmentationsFromFaction(
+            faction.name
+        )
 
         // Build a list of augs for the faction that we don't already own.
         let augs = []
@@ -207,7 +229,12 @@ function purchaseAllAugmentations(ns: NS): void {
     const alwaysAvailableAug = Constants.AlwaysAvailableAugmentation
     for (const key in Factions) {
         const faction = Factions[key]
-        while (ns.singularity.purchaseAugmentation(faction.name, alwaysAvailableAug)) {
+        while (
+            ns.singularity.purchaseAugmentation(
+                faction.name,
+                alwaysAvailableAug
+            )
+        ) {
             // Purchase successful, do it again
         }
     }
